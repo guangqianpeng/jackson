@@ -20,7 +20,9 @@ template <typename WriteStream>
 class Writer: noncopyable
 {
 public:
-    explicit Writer(WriteStream& os): os_(os), seeValue_(false) {}
+    explicit Writer(WriteStream& os):
+            os_(os), seeValue_(false)
+    {}
 
     bool Null()
     {

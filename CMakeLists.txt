@@ -35,7 +35,7 @@ add_library(tjson STATIC
         StringReadStream.h StringWriteStream.h
         Reader.cc Reader.h
         Writer.h
-        Value.cc Value.h Document.cc Document.h noncopyable.h)
+        Value.cc Value.h Document.cc Document.h noncopyable.h PrettyWriter.h)
 
 add_subdirectory(example)
 add_subdirectory(test)
