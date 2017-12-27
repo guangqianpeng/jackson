@@ -24,7 +24,7 @@ void BM_parse(benchmark::State &s, ExtraArgs&&... extra_args)
             exit(1);
         }
         json::StringWriteStream os;
-        json::PrettyWriter writer(os);
+        json::Writer writer(os);
         json::writeTo(doc, writer);
         std::string_view ret = os.get();
         benchmark::DoNotOptimize(ret);

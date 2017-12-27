@@ -7,9 +7,9 @@
 
 #include <string>
 
-#include "Value.h"
-#include "Reader.h"
-#include "StringReadStream.h"
+#include <jackson/Value.h>
+#include <jackson/Reader.h>
+#include <jackson/StringReadStream.h>
 
 
 namespace json

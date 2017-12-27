@@ -5,7 +5,7 @@
 #ifndef TJSON_PRETTYWRITER_H
 #define TJSON_PRETTYWRITER_H
 
-#include "Writer.h"
+#include <jackson/Writer.h>
 
 namespace json
 {

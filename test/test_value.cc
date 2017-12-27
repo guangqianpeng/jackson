@@ -5,8 +5,6 @@
 #include <gtest/gtest.h>
 
 #include <jackson/Document.h>
-#include <jackson/StringWriteStream.h>
-#include <jackson/Writer.h>
 
 using namespace json;
 

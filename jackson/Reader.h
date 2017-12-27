@@ -11,8 +11,8 @@
 #include <variant>
 #include <memory>
 
-#include "Exception.h"
-#include "Value.h"
+#include <jackson/Exception.h>
+#include <jackson/Value.h>
 
 namespace json
 {

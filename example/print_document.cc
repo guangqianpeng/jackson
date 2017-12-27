@@ -6,14 +6,14 @@
 #include <jackson/Writer.h>
 #include <jackson/FileWriteStream.h>
 
-#include "json.h"
+#include "sample.h"
 
 using namespace json;
 
 int main()
 {
     Document document;
-    ParseError err = document.parse(json[0]);
+    ParseError err = document.parse(sample[0]);
     if (err != PARSE_OK) {
         puts(parseErrorStr(err));
         return 1;

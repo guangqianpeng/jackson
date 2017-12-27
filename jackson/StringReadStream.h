@@ -8,7 +8,7 @@
 #include <string>
 #include <cassert>
 
-#include "Value.h"
+#include <jackson/noncopyable.h>
 
 namespace json
 {

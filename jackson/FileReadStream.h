@@ -9,7 +9,7 @@
 #include <vector>
 #include <cassert>
 
-#include "noncopyable.h"
+#include <jackson/noncopyable.h>
 
 namespace json
 {

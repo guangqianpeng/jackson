@@ -6,7 +6,8 @@
 #define TJSON_JSON_H
 
 #include <string_view>
-std::string_view json[] = {
+
+std::string_view sample[] = {
         "[\n"
                 "  {\n"
                 "    \"precision\": \"zip\",\n"

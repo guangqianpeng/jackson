@@ -13,7 +13,7 @@
 #include <memory>
 #include <algorithm>
 
-#include "noncopyable.h"
+#include <jackson/noncopyable.h>
 
 namespace json
 {

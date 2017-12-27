@@ -10,7 +10,7 @@
 #include <vector>
 #include <cassert>
 
-#include "Value.h"
+#include <jackson/Value.h>
 
 namespace json
 {
