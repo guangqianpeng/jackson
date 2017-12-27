@@ -40,7 +40,7 @@ public:
     {
         prefix(TYPE_INT32);
 
-        // fixme: faster conversion
+        // fixme: faster conversion please
         char buf[32];
         snprintf(buf, sizeof buf, "%d", i32);
         os_.put(buf);
@@ -50,7 +50,7 @@ public:
     {
         prefix(TYPE_INT64);
 
-        // fixme: faster conversion
+        // fixme: faster conversion please
         char buf[32];
         snprintf(buf, sizeof buf, "%ld", i64);
         os_.put(buf);
@@ -60,7 +60,7 @@ public:
     {
         prefix(TYPE_DOUBLE);
 
-        // fixme: faster conversion
+        // fixme: faster conversion please
         char buf[32];
         snprintf(buf, sizeof buf, "%.17g", d);
         os_.put(buf);

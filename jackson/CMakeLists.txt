@@ -1,4 +1,4 @@
-add_library(tjson STATIC
+add_library(jackson STATIC
         Exception.h
         FileReadStream.h FileWriteStream.h
         StringReadStream.h StringWriteStream.h
