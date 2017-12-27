@@ -62,9 +62,9 @@ public: // handler
         addValue(Value(d));
         return true;
     }
-    bool String(std::string&& s)
+    bool String(std::string_view s)
     {
-        addValue(Value(std::move(s)));
+        addValue(Value(s));
         return true;
     }
     bool StartObject()

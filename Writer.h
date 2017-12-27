@@ -52,12 +52,12 @@ public:
         os_.put(std::to_string(d));
         return true;
     }
-    bool String(std::string&& s)
+    bool String(std::string_view s)
     {
         prefix(TYPE_STRING);
         os_.put('"');
         // todo: unicode and escape
-        os_.put(std::move(s));
+        os_.put(s);
         os_.put('"');
         return true;
     }
@@ -68,11 +68,11 @@ public:
         os_.put('{');
         return true;
     }
-    bool Key(std::string&& s)
+    bool Key(std::string_view s)
     {
         prefix(TYPE_STRING);
         os_.put('"');
-        os_.put(std::move(s));
+        os_.put(s);
         os_.put('"');
         return true;
     }

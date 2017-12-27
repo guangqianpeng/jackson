@@ -17,11 +17,8 @@ class StringWriteStream: noncopyable
 public:
     void put(char c)
     { buffer_.push_back(c); }
-    void put(const char* str)
+    void put(std::string_view str)
     { buffer_.append(str); }
-    void put(const std::string& str)
-    { buffer_.append(str); }
-
     const std::string& get() const
     { return buffer_; }
 
