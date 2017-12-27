@@ -136,10 +136,6 @@ private:
     {
         os_.put('\n');
     }
-    void putSpace()
-    {
-        os_.put(' ');
-    }
 
 private:
     std::string_view indent_;

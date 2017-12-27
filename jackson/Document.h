@@ -98,6 +98,7 @@ private:
     Value* addValue(Value&& value)
     {
         ValueType type = value.getType();
+        (void)type;
         if (seeValue_)
             assert(!stack_.empty() && "root not singular");
         else {
@@ -138,7 +139,8 @@ private:
     struct Level
     {
         explicit Level(Value* value_):
-                value(value_), valueCount(0){}
+                value(value_), valueCount(0)
+        {}
 
         ValueType type() const
         {
