@@ -157,14 +157,19 @@ private:
     }
 
     template <typename ReadStream, typename Handler>
-    static void parseString(ReadStream& is, Handler& handler)
+    static void parseString(ReadStream& is, Handler& handler, bool isKey)
     {
         is.assertNext('"');
         std::string buffer;
         while (is.hasNext()) {
             switch (char ch = is.next()) {
                 case '"':
-                    CALL(handler.String(std::move(buffer)));
+                    if (isKey) {
+                        CALL(handler.Key(std::move(buffer)));
+                    }
+                    else {
+                        CALL(handler.String(std::move(buffer)));
+                    }
                     return;
                 case '\x01'...'\x1f':
                     throw Exception(PARSE_BAD_STRING_CHAR);
@@ -251,7 +256,7 @@ private:
             if (is.peek() != '"')
                 throw Exception(PARSE_MISS_KEY);
 
-            parseString(is, handler);
+            parseString(is, handler, true);
 
             // parse ':'
             parseWhitespace(is);
@@ -287,7 +292,7 @@ private:
             case 'n': return parseLiteral(is, handler, "null", TYPE_NULL);
             case 't': return parseLiteral(is, handler, "true", TYPE_TRUE);
             case 'f': return parseLiteral(is, handler, "false", TYPE_FALSE);
-            case '"': return parseString(is, handler);
+            case '"': return parseString(is, handler, false);
             case '[': return parseArray(is, handler);
             case '{': return parseObject(is, handler);
             default:  return parseNumber(is, handler);

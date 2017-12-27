@@ -6,16 +6,19 @@
 #define TJSON_VALUE_H
 
 #include <cassert>
+#include <cstring>
 #include <string>
+#include <string_view>
 #include <vector>
-#include <variant>
 #include <memory>
+#include <algorithm>
 
 #include "noncopyable.h"
 
 namespace tjson
 {
 
+using namespace std::string_view_literals;
 
 enum ValueType {
     TYPE_NULL,
@@ -29,101 +32,69 @@ enum ValueType {
     TYPE_OBJECT,
 };
 
-
+struct Member;
 class Value: noncopyable
 {
     friend class Document;
 public:
-    using ValuePtr = std::unique_ptr<Value>;
-    using String   = std::string;
-    using Array    = std::vector<ValuePtr>;
-    struct Member {
-        ValuePtr key; ValuePtr value;
-        Member(Value* key_, Value* value_):
-                key(key_), value(value_)
-        {}
-    };
+    using String   = std::vector<char>;
+    using Array    = std::vector<Value>;
     using Object   = std::vector<Member>;
-    using Variant  = std::variant<int32_t, int64_t, double, String, Array, Object>;
+    using MemberIterator = Object::iterator;
+    using ConstMemberIterator = Object::const_iterator;
 
 public:
     explicit Value(ValueType type = TYPE_NULL);
-    explicit Value(int32_t i32): type_(TYPE_INT32), i32_(i32) {}
-    explicit Value(int64_t i64): type_(TYPE_INT64), i64_(i64) {}
-    explicit Value(double d): type_(TYPE_DOUBLE), d_(d) {}
-    explicit Value(String&& s): type_(TYPE_STRING), var_(new Variant(std::move(s))) {}
-    explicit Value(Array&& a): type_(TYPE_ARRAY), var_(new Variant(std::move(a))) {}
-    explicit Value(Object&& o): type_(TYPE_OBJECT), var_(new Variant(std::move(o))) {}
+
+    explicit Value(int32_t i32):
+            type_(TYPE_INT32),
+            i32_(i32)
+    {}
+
+    explicit Value(int64_t i64):
+            type_(TYPE_INT64),
+            i64_(i64)
+    {}
+
+    explicit Value(double d):
+            type_(TYPE_DOUBLE),
+            d_(d)
+    {}
+
+    explicit Value(std::string_view s):
+            type_(TYPE_STRING),
+            s_(new String(s.begin(), s.end()))
+    {}
 
     Value(Value&& rhs) noexcept :
             type_(rhs.type_),
-            var_(rhs.var_)
+            a_(rhs.a_)
     {
         rhs.type_ = TYPE_NULL;
-        rhs.var_ = nullptr;
+        rhs.a_ = nullptr;
     }
 
     ~Value();
 
-#define CALL(expr) if (!(expr)) return false;
-
-    template <typename Handler>
-    bool writeTo(Handler& handler)
+    Value& operator=(Value&& rhs) noexcept
     {
-        switch (type_)
-        {
-            case TYPE_NULL:
-                CALL(handler.Null());
-                break;
-            case TYPE_TRUE:
-                CALL(handler.Bool(true));
-                break;
-            case TYPE_FALSE:
-                CALL(handler.Bool(false));
-                break;
-            case TYPE_INT32:
-                CALL(handler.Int32(i32_));
-                break;
-            case TYPE_INT64:
-                CALL(handler.Int64(i64_));
-                break;
-            case TYPE_DOUBLE:
-                CALL(handler.Double(d_));
-                break;
-            case TYPE_STRING:
-                CALL(handler.String(std::string(getString())));
-                break;
-            case TYPE_ARRAY:
-                CALL(handler.StartArray());
-                for (auto& val: getArray()) {
-                    CALL(val->writeTo(handler));
-                }
-                CALL(handler.EndArray());
-                break;
-            case TYPE_OBJECT:
-                CALL(handler.StartObject());
-                for (auto& val: getObject()) {
-                    handler.Key(std::string(val.key->getString()));
-                    CALL(val.value->writeTo(handler));
-                }
-                CALL(handler.EndObject());
-                break;
-            default:
-                assert(false && "bad type");
-        }
-        return true;
+        assert(this != &rhs);
+        this->~Value();
+        type_ = rhs.type_;
+        a_ = rhs.a_;
+        rhs.type_ = TYPE_NULL;
+        rhs.a_ = nullptr;
+        return *this;
     }
-
-#undef CALL
 
     ValueType getType() const { return type_; }
 
     size_t getSize() const
     {
         if (type_ == TYPE_ARRAY)
-            return getArray().size();
-        if (type_ == TYPE_OBJECT)
-            return getObject().size();
+            return a_->size();
+        else if (type_ == TYPE_OBJECT)
+            return o_->size();
         return 1;
     }
 
@@ -133,21 +104,11 @@ public:
         assert(type_ == TYPE_TRUE || type_ == TYPE_FALSE);
         return type_ == TYPE_TRUE;
     }
-    void setBool(bool b)
-    {
-        assert(type_ == TYPE_TRUE || type_ == TYPE_FALSE);
-        type_ = b ? TYPE_TRUE : TYPE_FALSE;
-    }
 
     int32_t getInt32() const
     {
         assert(type_ == TYPE_INT32);
         return i32_;
-    }
-    void setInt32(int32_t i32)
-    {
-        assert(type_ == TYPE_INT32);
-        i32_ = i32;
     }
 
     int64_t getInt64() const
@@ -155,93 +116,183 @@ public:
         assert(type_ == TYPE_INT64);
         return i64_;
     }
-    void setInt64(int64_t i64)
-    {
-        assert(type_ == TYPE_INT64);
-        i64_ = i64;
-    }
 
     double getDouble() const
     {
         assert(type_ == TYPE_DOUBLE);
         return d_;
     }
-    void setDouble(double d)
-    {
-        assert(type_ == TYPE_DOUBLE);
-        d_ = d;
-    }
 
-    const String& getString() const
+    std::string_view getString() const
     {
         assert(type_ == TYPE_STRING);
-        return std::get<String>(*var_);
-    }
-    void setString(const std::string& str)
-    {
-        assert(type_ == TYPE_STRING);
-        std::get<String>(*var_) = str;
-    }
-
-    const Array& getArray() const
-    {
-        assert(type_ == TYPE_ARRAY);
-        return std::get<Array>(*var_);
-    }
-
-    const Object& getObject() const
-    {
-        assert(type_ == TYPE_OBJECT);
-        return std::get<Object>(*var_);
-    }
-
-    String& getString()
-    {
-        assert(type_ == TYPE_STRING);
-        return std::get<String>(*var_);
+        return std::string_view(&*s_->begin(), s_->size());
     }
 
     Array& getArray()
     {
         assert(type_ == TYPE_ARRAY);
-        return std::get<Array>(*var_);
+        return *a_;
+    }
+
+    const Array& getArray() const
+    {
+        assert(type_ == TYPE_ARRAY);
+        return *a_;
     }
 
     Object& getObject()
     {
         assert(type_ == TYPE_OBJECT);
-        return std::get<Object>(*var_);
+        return *o_;
     }
 
-    Value& operator[] (const char* key)
+    const Object& getObject() const
     {
-        auto& obj = getObject();
-        for (auto& m: obj) {
-            if (m.key->getString() == key) {
-                return *m.value;
-            }
-        }
-        auto value = new Value(TYPE_OBJECT);
-        obj.emplace_back(new Value(key), value);
-        return *value;
+        assert(type_ == TYPE_OBJECT);
+        return *o_;
+    }
+
+    Value& setBool(bool b)
+    {
+        this->~Value();
+        return *new (this) Value(b);
+    }
+
+    Value& setInt32(int32_t i32)
+    {
+        this->~Value();
+        return *new (this) Value(i32);
+    }
+
+    Value& setInt64(int64_t i64)
+    {
+        this->~Value();
+        return *new (this) Value(i64);
+    }
+
+    Value& setDouble(double d)
+    {
+        this->~Value();
+        return *new (this) Value(d);
+    }
+
+    Value& setString(std::string_view s)
+    {
+        this->~Value();
+        return *new (this) Value(s);
+    }
+
+    Value& operator[] (std::string_view key);
+
+    MemberIterator findMember(std::string_view key);
+    ConstMemberIterator findMember(std::string_view key) const;
+
+    template <typename K, typename V>
+    void addMember(K&& key, V&& value)
+    {
+        assert(type_ == TYPE_OBJECT);
+        o_->emplace_back(std::forward<K>(key),
+                         std::forward<V>(value));
+    }
+
+    template <typename T>
+    void addValue(T&& value)
+    {
+        assert(type_ == TYPE_ARRAY);
+        a_->emplace_back(std::forward<T>(value));
     }
 
     const Value& operator[] (size_t i) const
-    { return *getArray()[i]; }
+    {
+        assert(type_ == TYPE_ARRAY);
+        return (*a_)[i];
+    }
 
     Value& operator[] (size_t i)
-    { return *getArray()[i]; }
+    {
+        assert(type_ == TYPE_ARRAY);
+        return (*a_)[i];
+    }
 
 private:
     ValueType type_;
     union {
-        Variant* var_;
         int32_t  i32_;
         int64_t  i64_;
         double   d_;
+        String*  s_;
+        Array*   a_;
+        Object*  o_;
     };
 };
 
+struct Member
+{
+    Member(Value&& key_, Value&& value_):
+            key(std::move(key_)),
+            value(std::move(value_))
+    {}
+
+    Member(std::string_view key_, Value&& value_):
+            key(key_),
+            value(std::move(value_))
+    {}
+
+    Value key;
+    Value value;
+};
+
+#define CALL(expr) do { if (!(expr)) return false; } while(false)
+
+template <typename ValueOrDocument, typename Handler>
+bool writeTo(const ValueOrDocument& doc, Handler& handler)
+{
+    switch (doc.getType())
+    {
+        case TYPE_NULL:
+            CALL(handler.Null());
+            break;
+        case TYPE_TRUE:
+            CALL(handler.Bool(true));
+            break;
+        case TYPE_FALSE:
+            CALL(handler.Bool(false));
+            break;
+        case TYPE_INT32:
+            CALL(handler.Int32(doc.getInt32()));
+            break;
+        case TYPE_INT64:
+            CALL(handler.Int64(doc.getInt64()));
+            break;
+        case TYPE_DOUBLE:
+            CALL(handler.Double(doc.getDouble()));
+            break;
+        case TYPE_STRING:
+            CALL(handler.String(doc.getString()));
+            break;
+        case TYPE_ARRAY:
+            CALL(handler.StartArray());
+            for (auto& val: doc.getArray()) {
+                CALL(writeTo(val, handler));
+            }
+            CALL(handler.EndArray());
+            break;
+        case TYPE_OBJECT:
+            CALL(handler.StartObject());
+            for (auto& member: doc.getObject()) {
+                handler.Key(member.key);
+                CALL(writeTo(member.value, handler));
+            }
+            CALL(handler.EndObject());
+            break;
+        default:
+            assert(false && "bad type");
+    }
+    return true;
+}
+
+#undef CALL
 
 }
 

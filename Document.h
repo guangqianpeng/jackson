@@ -39,43 +39,43 @@ public:
 public: // handler
     bool Null()
     {
-        addValue(new Value(TYPE_NULL));
+        addValue(Value(TYPE_NULL));
         return true;
     }
     bool Bool(bool b)
     {
-        addValue(new Value(b ? TYPE_TRUE : TYPE_FALSE));
+        addValue(Value(b ? TYPE_TRUE : TYPE_FALSE));
         return true;
     }
     bool Int32(int32_t i32)
     {
-        addValue(new Value(i32));
+        addValue(Value(i32));
         return true;
     }
     bool Int64(int64_t i64)
     {
-        addValue(new Value(i64));
+        addValue(Value(i64));
         return true;
     }
     bool Double(double d)
     {
-        addValue(new Value(d));
+        addValue(Value(d));
         return true;
     }
     bool String(std::string&& s)
     {
-        addValue(new Value(std::move(s)));
+        addValue(Value(std::move(s)));
         return true;
     }
     bool StartObject()
     {
-        auto value = addValue(new Value(TYPE_OBJECT));
+        auto value = addValue(Value(TYPE_OBJECT));
         stack_.emplace_back(value);
         return true;
     }
-    bool Key(std::string&& s)
+    bool Key(std::string_view s)
     {
-        addValue(new Value(std::move(s)));
+        addValue(Value(s));
         return true;
     }
     bool EndObject()
@@ -87,7 +87,7 @@ public: // handler
     }
     bool StartArray()
     {
-        auto value = addValue(new Value(TYPE_ARRAY));
+        auto value = addValue(Value(TYPE_ARRAY));
         stack_.emplace_back(value);
         return true;
     }
@@ -98,45 +98,45 @@ public: // handler
         stack_.pop_back();
         return true;
     }
-    ~Document()
-    {
-        delete key_;
-    }
 
 private:
-    Value* addValue(Value *value)
+    Value* addValue(Value&& value)
     {
-        ValueType type = value->getType();
+        ValueType type = value.getType();
         if (seeValue_)
             assert(!stack_.empty() && "root not singular");
         else {
             assert(type_ == TYPE_NULL);
             seeValue_ = true;
-            type_ = value->type_;
-            var_ = value->var_;
-            value->type_ = TYPE_NULL;
-            delete value;
+            type_ = value.type_;
+            a_ = value.a_;
+            value.type_ = TYPE_NULL;
+            value.a_ = nullptr;
             return this;
         }
 
 
         auto& top = stack_.back();
         if (top.type() == TYPE_ARRAY) {
-            top.value->getArray().emplace_back(value);
+            top.value->addValue(std::move(value));
+            top.valueCount++;
+            return top.lastValue();
         }
         else {
             assert(top.type() == TYPE_OBJECT);
+
             if (top.valueCount % 2 == 0) {
                 assert(type == TYPE_STRING && "miss quotation mark");
-                key_ = value;
+                key_ = std::move(value);
+                top.valueCount++;
+                return &key_;
             }
             else {
-                top.value->getObject().emplace_back(key_, value);
-                key_ = nullptr;
+                top.value->addMember(std::move(key_), std::move(value));
+                top.valueCount++;
+                return top.lastValue();
             }
         }
-        top.valueCount++;
-        return value;
     }
 
 private:
@@ -144,14 +144,24 @@ private:
         explicit Level(Value* value_):
                 value(value_), valueCount(0){}
         ValueType type() const
-        { return value->getType(); }
+        {
+            return value->getType();
+        }
+        Value* lastValue()
+        {
+            if (type() == TYPE_ARRAY) {
+                return &value->a_->back();
+            } else {
+                return &value->o_->back().value;
+            }
+        }
         Value* value;
         int valueCount;
     };
 
 private:
     std::vector<Level> stack_;
-    Value* key_ = nullptr;
+    Value key_;
     bool seeValue_ = false;
 };
 
