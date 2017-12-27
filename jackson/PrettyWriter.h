@@ -7,7 +7,7 @@
 
 #include "Writer.h"
 
-namespace tjson
+namespace json
 {
 
 
@@ -15,7 +15,10 @@ template <typename WriteStream>
 class PrettyWriter: noncopyable
 {
 public:
-    explicit PrettyWriter(WriteStream& os):
+    explicit PrettyWriter(WriteStream& os, std::string_view indent = "    "):
+            indent_(indent),
+            indentDepth_(0),
+            expectObjectValue_(false),
             writer_(os),
             os_(os)
     {}
@@ -71,7 +74,7 @@ public:
 
     bool Key(std::string_view s)
     {
-        expectObjectValue = true;
+        expectObjectValue_ = true;
         writer_.Key(s);
         return true;
     }
@@ -100,34 +103,34 @@ public:
 private:
     void incrIndent()
     {
-        indent_++;
+        indentDepth_++;
         putNewline();
         putIndent();
-        if (expectObjectValue)
-            expectObjectValue = false;
+        if (expectObjectValue_)
+            expectObjectValue_ = false;
     }
     void decrIndent()
     {
-        assert(indent_ > 0);
-        indent_--;
+        assert(indentDepth_ > 0);
+        indentDepth_--;
         putNewline();
         putIndent();
-        if (expectObjectValue)
-            expectObjectValue = false;
+        if (expectObjectValue_)
+            expectObjectValue_ = false;
     }
     void keepIndent()
     {
-        if (indent_ > 0) {
+        if (indentDepth_ > 0) {
             putNewline();
             putIndent();
         }
-        if (expectObjectValue)
-            expectObjectValue = false;
+        if (expectObjectValue_)
+            expectObjectValue_ = false;
     }
     void putIndent()
     {
-        for (int i = 0; i < indent_; i++)
-            os_.put(indentChar);
+        for (int i = 0; i < indentDepth_; i++)
+            os_.put(indent_);
     }
     void putNewline()
     {
@@ -139,10 +142,10 @@ private:
     }
 
 private:
-    static constexpr const char* indentChar = "    ";
-    int indent_ = 0;
-    bool expectObjectValue = false;
-    bool expectArrayValue = false;
+    std::string_view indent_;
+    int indentDepth_ = 0;
+    bool expectObjectValue_ = false;
+
 private:
     Writer<WriteStream> writer_;
     WriteStream& os_;

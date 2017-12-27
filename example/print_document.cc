@@ -2,12 +2,13 @@
 // Created by frank on 17-12-26.
 //
 
-#include "json.h"
-#include "Document.h"
-#include "Writer.h"
-#include "FileWriteStream.h"
+#include <jackson/Document.h>
+#include <jackson/Writer.h>
+#include <jackson/FileWriteStream.h>
 
-using namespace tjson;
+#include "json.h"
+
+using namespace json;
 
 int main()
 {

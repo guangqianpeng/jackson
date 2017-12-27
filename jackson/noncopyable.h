@@ -5,7 +5,7 @@
 #ifndef TJSON_NONCOPYABLE_H
 #define TJSON_NONCOPYABLE_H
 
-namespace tjson
+namespace json
 {
 
 class noncopyable

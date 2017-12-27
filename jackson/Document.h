@@ -12,7 +12,7 @@
 #include "StringReadStream.h"
 
 
-namespace tjson
+namespace json
 {
 
 

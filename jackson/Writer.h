@@ -12,7 +12,7 @@
 
 #include "Value.h"
 
-namespace tjson
+namespace json
 {
 
 

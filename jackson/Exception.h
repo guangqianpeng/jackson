@@ -9,7 +9,7 @@
 #include <cassert>
 
 
-namespace tjson
+namespace json
 {
 
 #define ERROR_MAP(XX) \

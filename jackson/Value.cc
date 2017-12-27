@@ -4,7 +4,7 @@
 
 #include "Value.h"
 
-using namespace tjson;
+using namespace json;
 
 Value::Value(ValueType type): type_(type), s_(nullptr)
 {

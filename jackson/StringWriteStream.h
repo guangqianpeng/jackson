@@ -10,7 +10,7 @@
 
 #include "noncopyable.h"
 
-namespace tjson
+namespace json
 {
 
 class StringWriteStream: noncopyable

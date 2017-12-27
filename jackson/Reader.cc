@@ -4,7 +4,7 @@
 
 #include "Reader.h"
 
-using namespace tjson;
+using namespace json;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"

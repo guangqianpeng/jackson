@@ -1,16 +1,14 @@
 #include <cstdio>
+#include <jackson/Reader.h>
+#include <jackson/Writer.h>
+#include <jackson/FileReadStream.h>
+#include <jackson/FileWriteStream.h>
 
-#include "json.h"
-#include "Reader.h"
-#include "Writer.h"
-#include "StringReadStream.h"
-#include "FileWriteStream.h"
-
-using namespace tjson;
+using namespace json;
 
 int main()
 {
-    StringReadStream is(json[0]);
+    FileReadStream is(stdin);
     FileWriteStream os(stdout);
     Writer writer(os);
 

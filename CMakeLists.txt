@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.9)
-project(tjson)
+cmake_minimum_required(VERSION 3.0)
+project(jackson)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -29,13 +29,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-add_library(tjson STATIC
-        Exception.h
-        FileReadStream.h FileWriteStream.h
-        StringReadStream.h StringWriteStream.h
-        Reader.cc Reader.h
-        Writer.h
-        Value.cc Value.h Document.cc Document.h noncopyable.h PrettyWriter.h)
-
+add_subdirectory(jackson)
 add_subdirectory(example)
 add_subdirectory(test)

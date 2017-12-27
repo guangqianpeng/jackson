@@ -4,10 +4,10 @@
 
 #include <cstdio>
 
-#include "Writer.h"
-#include "FileWriteStream.h"
+#include <jackson/Writer.h>
+#include <jackson/FileWriteStream.h>
 
-using namespace tjson;
+using namespace json;
 
 int main()
 {

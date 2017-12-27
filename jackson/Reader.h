@@ -14,7 +14,7 @@
 #include "Exception.h"
 #include "Value.h"
 
-namespace tjson
+namespace json
 {
 
 class Reader: noncopyable

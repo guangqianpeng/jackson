@@ -15,7 +15,7 @@
 
 #include "noncopyable.h"
 
-namespace tjson
+namespace json
 {
 
 using namespace std::string_view_literals;

@@ -4,11 +4,11 @@
 
 #include <gtest/gtest.h>
 
-#include "Document.h"
-#include "StringWriteStream.h"
-#include "Writer.h"
+#include <jackson/Document.h>
+#include <jackson/StringWriteStream.h>
+#include <jackson/Writer.h>
 
-using namespace tjson;
+using namespace json;
 
 #define TEST_ERROR(err, json) do { \
     Document doc; \
@@ -225,7 +225,7 @@ TEST(json_value, number) {
 
     TEST_INT64(2147483648LL, "2147483648");
     TEST_INT64(-2147483649LL, "-2147483649");
-    // gcc refuse following literal
+    // gcc refuse large literal
     TEST_INT64(std::numeric_limits<int64_t>::max(), "9223372036854775807");
     TEST_INT64(std::numeric_limits<int64_t>::min(), "-9223372036854775808");
 }
