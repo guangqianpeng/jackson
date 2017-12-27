@@ -37,27 +37,58 @@ public:
     bool Int32(int32_t i32)
     {
         prefix(TYPE_INT32);
-        os_.put(std::to_string(i32));
+
+        // fixme: faster conversion
+        char buf[32];
+        snprintf(buf, sizeof buf, "%d", i32);
+        os_.put(buf);
         return true;
     }
     bool Int64(int64_t i64)
     {
         prefix(TYPE_INT64);
-        os_.put(std::to_string(i64));
+
+        // fixme: faster conversion
+        char buf[32];
+        snprintf(buf, sizeof buf, "%ld", i64);
+        os_.put(buf);
         return true;
     }
     bool Double(double d)
     {
         prefix(TYPE_DOUBLE);
-        os_.put(std::to_string(d));
+
+        // fixme: faster conversion
+        char buf[32];
+        snprintf(buf, sizeof buf, "%.17g", d);
+        os_.put(buf);
         return true;
     }
     bool String(std::string_view s)
     {
         prefix(TYPE_STRING);
         os_.put('"');
-        // todo: unicode and escape
-        os_.put(s);
+        for (auto c: s) {
+            auto ch = static_cast<unsigned>(c);
+            switch (ch) {
+                case '\"': os_.put("\\\""); break;
+                case '\b': os_.put("\\b");  break;
+                case '\f': os_.put("\\f");  break;
+                case '\n': os_.put("\\n");  break;
+                case '\r': os_.put("\\r");  break;
+                case '\t': os_.put("\\t");  break;
+                case '\\': os_.put("\\\\"); break;
+                default:
+                    if (ch < 0x20) {
+                        char buf[7];
+                        snprintf(buf, 7, "\\u%04X", ch);
+                        os_.put(buf);
+                    }
+                    else os_.put(c);
+                    break;
+            }
+        }
+
         os_.put('"');
         return true;
     }

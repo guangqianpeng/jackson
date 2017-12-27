@@ -2,8 +2,6 @@
 // Created by frank on 17-12-26.
 //
 
-#include <iostream>
-
 #include "Document.h"
 #include "Writer.h"
 #include "FileWriteStream.h"
@@ -42,5 +40,5 @@ int main()
 
     FileWriteStream os(stdout);
     Writer writer(os);
-    document.writeTo(writer);
+    writeTo(document, writer);
 }

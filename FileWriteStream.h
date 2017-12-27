@@ -23,6 +23,10 @@ public:
     {
         putc(c, output_);
     }
+    void put(const char* str)
+    {
+        fputs(str, output_);
+    }
     void put(std::string_view str)
     {
         fprintf(output_, "%.*s", static_cast<int>(str.length()), str.data());

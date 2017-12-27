@@ -19,12 +19,7 @@ namespace tjson
 class Document: public Value
 {
 public:
-    ParseError parse(const std::string& json)
-    {
-        return parse(json.c_str());
-    }
-
-    ParseError parse(const char* json)
+    ParseError parse(std::string_view json)
     {
         StringReadStream is(json);
         return parseStream(is);
@@ -140,13 +135,16 @@ private:
     }
 
 private:
-    struct Level {
+    struct Level
+    {
         explicit Level(Value* value_):
                 value(value_), valueCount(0){}
+
         ValueType type() const
         {
             return value->getType();
         }
+
         Value* lastValue()
         {
             if (type() == TYPE_ARRAY) {
@@ -155,6 +153,7 @@ private:
                 return &value->o_->back().value;
             }
         }
+
         Value* value;
         int valueCount;
     };

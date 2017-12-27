@@ -281,7 +281,7 @@ bool writeTo(const ValueOrDocument& doc, Handler& handler)
         case TYPE_OBJECT:
             CALL(handler.StartObject());
             for (auto& member: doc.getObject()) {
-                handler.Key(member.key);
+                handler.Key(member.key.getString());
                 CALL(writeTo(member.value, handler));
             }
             CALL(handler.EndObject());

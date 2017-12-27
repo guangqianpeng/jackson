@@ -60,7 +60,7 @@ private:
     template <typename ReadStream>
     static void parseWhitespace(ReadStream& is)
     {
-        while (true) {
+        while (is.hasNext()) {
             char ch = is.peek();
             if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n')
                 is.next();
@@ -98,10 +98,11 @@ private:
     static void parseNumber(ReadStream& is, Handler& handler)
     {
         bool useDouble = false;
-
         auto start = is.getIter();
 
-        if (is.peek() == '-') is.next();
+        if (is.peek() == '-')
+            is.next();
+
         if (is.peek() == '0') {
             is.next();
             if (isdigit(is.peek()))

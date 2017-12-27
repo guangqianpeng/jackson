@@ -40,7 +40,9 @@ public:
     }
 
     char peek()
-    { return hasNext() ? *iter_ : '\0'; }
+    {
+        return hasNext() ? *iter_ : '\0';
+    }
 
     const Iterator getIter() const
     { return iter_; }
@@ -57,7 +59,8 @@ private:
         char buf[65536];
         while(true) {
             size_t n = fread(buf, 1, sizeof(buf), input);
-            if (n == 0) break;
+            if (n == 0)
+                break;
             buffer_.insert(buffer_.end(), buf, buf + n);
         }
     }
