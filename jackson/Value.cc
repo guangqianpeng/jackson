@@ -22,7 +22,8 @@ Value::Value(ValueType type): type_(type), s_(nullptr)
     }
 }
 
-Value::~Value() {
+Value::~Value()
+{
     switch (type_) {
         case TYPE_NULL:
         case TYPE_TRUE:

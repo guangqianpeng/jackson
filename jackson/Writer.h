@@ -15,6 +15,17 @@
 namespace json
 {
 
+namespace detail
+{
+
+//
+// fast int to string conversion
+// buffer is NOT null terminated!
+//
+unsigned itoa(int32_t val, char* buf);
+unsigned itoa(int64_t val, char* buf);
+
+}
 
 template <typename WriteStream>
 class Writer: noncopyable
@@ -40,20 +51,18 @@ public:
     {
         prefix(TYPE_INT32);
 
-        // fixme: faster conversion please
-        char buf[32];
-        snprintf(buf, sizeof buf, "%d", i32);
-        os_.put(buf);
+        char buf[11];
+        unsigned cnt = detail::itoa(i32, buf);
+        os_.put(std::string_view(buf, cnt));
         return true;
     }
     bool Int64(int64_t i64)
     {
         prefix(TYPE_INT64);
 
-        // fixme: faster conversion please
-        char buf[32];
-        snprintf(buf, sizeof buf, "%ld", i64);
-        os_.put(buf);
+        char buf[20];
+        unsigned cnt = detail::itoa(i64, buf);
+        os_.put(std::string_view(buf, cnt));
         return true;
     }
     bool Double(double d)
@@ -62,7 +71,7 @@ public:
 
         // fixme: faster conversion please
         char buf[32];
-        snprintf(buf, sizeof buf, "%.17g", d);
+        sprintf(buf, "%.17g", d);
         os_.put(buf);
         return true;
     }
@@ -71,8 +80,8 @@ public:
         prefix(TYPE_STRING);
         os_.put('"');
         for (auto c: s) {
-            auto ch = static_cast<unsigned>(c);
-            switch (ch) {
+            auto u = static_cast<unsigned>(c);
+            switch (u) {
                 case '\"': os_.put("\\\""); break;
                 case '\b': os_.put("\\b");  break;
                 case '\f': os_.put("\\f");  break;
@@ -81,9 +90,9 @@ public:
                 case '\t': os_.put("\\t");  break;
                 case '\\': os_.put("\\\\"); break;
                 default:
-                    if (ch < 0x20) {
+                    if (u < 0x20) {
                         char buf[7];
-                        snprintf(buf, 7, "\\u%04X", ch);
+                        snprintf(buf, 7, "\\u%04X", u);
                         os_.put(buf);
                     }
                     else os_.put(c);
@@ -148,7 +157,8 @@ private:
         if (top.inArray) {
             if (top.valueCount > 0)
                 os_.put(',');
-        } else {
+        }
+        else {
             if (top.valueCount % 2 == 1)
                 os_.put(':');
             else {
@@ -163,7 +173,8 @@ private:
 private:
     struct Level {
         explicit Level(bool inArray_):
-                inArray(inArray_), valueCount(0) {}
+                inArray(inArray_), valueCount(0)
+        {}
         bool inArray; // in array or object
         int valueCount;
     };

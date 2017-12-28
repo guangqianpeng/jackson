@@ -17,12 +17,12 @@ namespace json
 class StringReadStream: noncopyable
 {
 public:
-    using Iterator = std::vector<char>::iterator;
+    using Iterator = std::string_view::iterator;
 
 public:
     explicit
     StringReadStream(std::string_view json)
-            : json_(json.begin(), json.end()),
+            : json_(json),
               iter_(json_.begin())
     {}
 
@@ -34,8 +34,10 @@ public:
         return hasNext() ? *iter_ : '\0';
     }
 
-    const Iterator getIter() const
-    { return iter_; }
+    Iterator getIter() const
+    {
+        return iter_;
+    }
 
     char next()
     {
@@ -54,7 +56,7 @@ public:
     }
 
 private:
-    std::vector<char> json_;
+    std::string_view  json_;
     Iterator          iter_;
 };
 

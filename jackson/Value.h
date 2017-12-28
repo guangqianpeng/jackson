@@ -129,22 +129,10 @@ public:
         return std::string_view(&*s_->begin(), s_->size());
     }
 
-    Array& getArray()
-    {
-        assert(type_ == TYPE_ARRAY);
-        return *a_;
-    }
-
     const Array& getArray() const
     {
         assert(type_ == TYPE_ARRAY);
         return *a_;
-    }
-
-    Object& getObject()
-    {
-        assert(type_ == TYPE_OBJECT);
-        return *o_;
     }
 
     const Object& getObject() const
@@ -183,6 +171,18 @@ public:
         return *new (this) Value(s);
     }
 
+    Value& setArray()
+    {
+        this->~Value();
+        return *new (this) Value(TYPE_ARRAY);
+    }
+
+    Value& setObject()
+    {
+        this->~Value();
+        return *new (this) Value(TYPE_OBJECT);
+    }
+
     Value& operator[] (std::string_view key);
 
     MemberIterator findMember(std::string_view key);
@@ -217,6 +217,7 @@ public:
 
 private:
     ValueType type_;
+
     union {
         int32_t  i32_;
         int64_t  i64_;

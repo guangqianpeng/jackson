@@ -3,7 +3,7 @@ add_library(jackson STATIC
         FileReadStream.h FileWriteStream.h
         StringReadStream.h StringWriteStream.h
         Reader.cc Reader.h
-        Writer.h
+        Writer.cc Writer.h
         Value.cc Value.h
         Document.h
         noncopyable.h

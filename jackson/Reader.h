@@ -107,10 +107,15 @@ private:
             is.next();
             if (isdigit(is.peek()))
                 throw Exception(PARSE_BAD_VALUE);
-        } else if (isDigit19(is.peek())) {
+        }
+        else if (isDigit19(is.peek())) {
             is.next();
-            while (isDigit(is.peek())) is.next();
-        } else throw Exception(PARSE_BAD_VALUE);
+            while (isDigit(is.peek()))
+                is.next();
+        }
+        else
+            throw Exception(PARSE_BAD_VALUE);
+
         if (is.peek() == '.') {
             useDouble = true;
             is.next();
@@ -128,7 +133,8 @@ private:
             if (!isDigit(is.peek()))
                 throw Exception(PARSE_BAD_VALUE);
             is.next();
-            while (isDigit(is.peek())) is.next();
+            while (isDigit(is.peek()))
+                is.next();
         }
 
         auto end = is.getIter();
@@ -136,15 +142,19 @@ private:
             throw Exception(PARSE_BAD_VALUE);
 
         try {
-            std::size_t idx = 0;
-            std::string buffer(start, end);
+            //
+            // std::stod() && std::stoi() are bad ideas,
+            // because new string buffer is needed
+            //
+            std::size_t idx;
             if (useDouble) {
-                double d = std::stod(buffer, &idx);
-                assert(idx == buffer.length());
+                double d = __gnu_cxx::__stoa(&std::strtod, "stod", &*start, &idx);
+                assert(start + idx == end);
                 CALL(handler.Double(d));
-            } else {
-                int64_t i64 = std::stol(buffer, &idx);
-                assert(idx == buffer.length());
+            }
+            else {
+                int64_t i64 = __gnu_cxx::__stoa(&std::strtol, "stol", &*start, &idx, 10);
+                assert(start + idx == end);
                 if (i64 <= std::numeric_limits<int32_t>::max() &&
                     i64 >= std::numeric_limits<int32_t>::min()) {
                     CALL(handler.Int32(static_cast<int32_t>(i64)));
@@ -152,7 +162,8 @@ private:
                 else
                     CALL(handler.Int64(i64));
             }
-        } catch (std::out_of_range &e) {
+        }
+        catch (std::out_of_range &e) {
             throw Exception(PARSE_NUMBER_TOO_BIG);
         }
     }
