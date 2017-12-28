@@ -12,3 +12,6 @@ target_link_libraries(add_one jackson)
 
 add_executable(pretty pretty.cc)
 target_link_libraries(pretty jackson)
+
+add_executable(write_document write_document.cc)
+target_link_libraries(write_document jackson)

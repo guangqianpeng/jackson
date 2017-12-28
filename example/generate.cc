@@ -16,7 +16,7 @@ int main()
 
     writer.StartArray();
     writer.Bool(true);
+    writer.String("\0蛤蛤蛤\0"sv);
     writer.Bool(true);
-    writer.String("asdf");
     writer.EndArray();
 }

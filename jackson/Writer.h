@@ -20,7 +20,7 @@ namespace detail
 
 //
 // fast int to string conversion
-// buffer is NOT null terminated!
+// buffer is NOT null terminated
 //
 unsigned itoa(int32_t val, char* buf);
 unsigned itoa(int64_t val, char* buf);

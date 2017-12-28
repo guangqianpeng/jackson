@@ -27,12 +27,12 @@ public:
     { return handler_.Int64(i64 + 1); }
     bool Double(double d)
     { return handler_.Double(d + 1); }
-    bool String(std::string&& s)
-    { return handler_.String(std::move(s)); }
+    bool String(std::string_view  s)
+    { return handler_.String(s); }
     bool StartObject()
     { return handler_.StartObject(); }
-    bool Key(std::string&& s)
-    { return handler_.Key(std::move(s)); }
+    bool Key(std::string_view s)
+    { return handler_.Key(s); }
     bool EndObject()
     { return handler_.EndObject(); }
     bool StartArray()
