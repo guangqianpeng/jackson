@@ -13,11 +13,12 @@ addons:
     packages:
     # install toolchains
     - g++-7
-    - libgtest-dev
 env:
   - BUILD_TYPE=Debug
   - BUILD_TYPE=Release
 script:
+  - sudo apt-get -qq update
+  - sudo apt install libgtest-dev
   - sudo unlink /usr/bin/gcc
   - sudo ln -s /usr/bin/gcc-7 /usr/bin/gcc
   - sudo unlink /usr/bin/g++
@@ -25,3 +26,5 @@ script:
   - g++ -v
   - grep CXX_COMPILER CMakeLists.txt
   - ./build.sh install
+notifications:
+  email: never
