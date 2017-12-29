@@ -126,6 +126,7 @@ jackson使用[Google Test](https://github.com/google/googletest)和[Google Bench
 ```shell
 $ git clone git@github.com:guangqianpeng/jackson.git
 $ cd jackson
+$ git submodule update --init --recursive
 $ ./build.sh 
 see binary in ../jackson-build/Release/{bin, lib}
 $ ./build.sh install
