@@ -1,5 +1,4 @@
 find_package(GTest REQUIRED)
-enable_testing()
 
 add_executable(test_error test_error.cc)
 target_link_libraries(test_error jackson ${GTEST_BOTH_LIBRARIES} pthread)

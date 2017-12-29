@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project(jackson)
 
+enable_testing()
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
