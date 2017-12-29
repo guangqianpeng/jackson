@@ -29,6 +29,7 @@ int main()
         exit(1);
     }
 
+
     Value& state = document["State"];
     std::cout << "State: " << state.getString() << '\n';
 

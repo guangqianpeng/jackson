@@ -33,6 +33,8 @@ enum ValueType {
 };
 
 struct Member;
+class Document;
+
 class Value: noncopyable
 {
     friend class Document;
@@ -74,11 +76,11 @@ public:
         rhs.a_ = nullptr;
     }
 
+    ~Value();
+
     // never copy or construct from Document
     Value(Document&& rhs) = delete;
     void operator=(Document&& rhs) = delete;
-
-    ~Value();
 
     Value& operator=(Value&& rhs) noexcept
     {

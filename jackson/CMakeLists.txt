@@ -8,3 +8,19 @@ add_library(jackson STATIC
         Document.h
         noncopyable.h
         PrettyWriter.h)
+install(TARGETS jackson DESTINATION lib)
+
+set(HEADERS
+        Document.h
+        Exception.h
+        FileReadStream.h
+        FileWriteStream.h
+        noncopyable.h
+        PrettyWriter.h
+        Reader.h
+        StringReadStream.h
+        StringWriteStream.h
+        Value.h
+        Writer.h
+        )
+install(FILES ${HEADERS} DESTINATION include)
