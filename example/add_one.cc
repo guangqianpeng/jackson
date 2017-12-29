@@ -53,6 +53,6 @@ int main()
 
     ParseError err = Reader::parse(is, addOne);
     if (err != PARSE_OK) {
-        printf(parseErrorStr(err));
+        printf("%s\n", parseErrorStr(err));
     }
 }
