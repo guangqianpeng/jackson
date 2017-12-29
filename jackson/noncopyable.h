@@ -11,10 +11,11 @@ namespace json
 class noncopyable
 {
 public:
-    noncopyable() = default;
-    ~noncopyable() = default;
     noncopyable(const noncopyable&) = delete;
     void operator=(const noncopyable&) = delete;
+protected:
+    noncopyable() = default;
+    ~noncopyable() = default;
 };
 
 }

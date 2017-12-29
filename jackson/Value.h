@@ -74,6 +74,10 @@ public:
         rhs.a_ = nullptr;
     }
 
+    // never copy or construct from Document
+    Value(Document&& rhs) = delete;
+    void operator=(Document&& rhs) = delete;
+
     ~Value();
 
     Value& operator=(Value&& rhs) noexcept

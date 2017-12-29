@@ -4,7 +4,7 @@
 
 #include <type_traits>
 
-#include "Writer.h"
+#include <jackson/Writer.h>
 
 using namespace json;
 
