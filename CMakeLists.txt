@@ -24,7 +24,6 @@ set(CXX_FLAGS
         -rdynamic)
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
-set(CMAKE_CXX_COMPILER "g++")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
@@ -34,7 +33,6 @@ include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(jackson)
 add_subdirectory(example)
 
-#find_package(GTest REQUIRED)
 add_subdirectory(jackson/test)
 
 if (CMAKE_BUILD_BENCHMARK)
