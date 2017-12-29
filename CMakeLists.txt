@@ -7,6 +7,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+
+
 set(CXX_FLAGS
         -fno-omit-frame-pointer # linux perf
         -Wall
