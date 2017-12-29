@@ -119,6 +119,17 @@ int main()
 
 jackson使用[Google Test](https://github.com/google/googletest)和[Google Benchmark](https://github.com/google/benchmark), 分别见`test`和`benchmark`目录.
 
+## 安装
+
+```shell
+$ git clone git@github.com:guangqianpeng/jackson.git
+$ cd jackson
+$ ./build.sh 
+see binary in ../jackson-build/Release/{bin, lib}
+$ ./build.sh install
+see headers and libs in ../jackson-build/Release/{include, lib}
+```
+
 ## 参考
 
 - [RapidJSON](https://github.com/Tencent/rapidjson): A fast JSON parser/generator for C++ with both SAX/DOM style API.

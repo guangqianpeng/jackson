@@ -1,14 +1,13 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.6)
 project(jackson)
-
-set(CMAKE_CXX_STANDARD 17)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 set(CXX_FLAGS
-        -fno-omit-frame-pointer # perf
+        -std=c++17
+        -fno-omit-frame-pointer # linux perf
         -Wall
         -Wextra
         -Werror
