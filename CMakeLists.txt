@@ -33,8 +33,10 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 add_subdirectory(jackson)
 add_subdirectory(example)
-add_subdirectory(test)
+
+#find_package(GTest REQUIRED)
+add_subdirectory(jackson/test)
 
 if (CMAKE_BUILD_BENCHMARK)
-  add_subdirectory(benchmark)
+    add_subdirectory(jackson/bench)
 endif()
