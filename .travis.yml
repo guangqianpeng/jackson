@@ -23,6 +23,8 @@ script:
   - sudo ln -s /usr/bin/g++-7 /usr/bin/g++
   - g++ -v
   - grep CXX_COMPILER CMakeLists.txt
+  - ./build.sh
   - ./build.sh install
+  - ./build.sh test
 notifications:
   email: never
