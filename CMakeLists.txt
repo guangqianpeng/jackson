@@ -6,7 +6,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CXX_FLAGS
-        -std=c++17
         -fno-omit-frame-pointer # linux perf
         -Wall
         -Wextra
@@ -18,6 +17,7 @@ set(CXX_FLAGS
         -Wpointer-arith
         -Wshadow
         -Wwrite-strings
+        -std=c++17
         -march=native
         -rdynamic)
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
@@ -32,4 +32,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(jackson)
 add_subdirectory(example)
 add_subdirectory(test)
-add_subdirectory(benchmark)
+
+if (CMAKE_BUILD_BENCHMARK)
+  add_subdirectory(benchmark)
+endif()

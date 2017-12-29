@@ -12,6 +12,7 @@ addons:
     packages:
     # install toolchains
     - g++-7
+    - libgtest-dev
 env:
   - BUILD_TYPE=Debug
   - BUILD_TYPE=Release
