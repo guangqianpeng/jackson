@@ -276,19 +276,19 @@ struct Member
 template <typename K, typename V>
 Value& Value::addMember(K&& key, V&& value)
 {
-    constexpr bool keyAsString = std::is_same<K, std::string_view>::value;
     constexpr bool keyAsValue = std::is_same<K, Value>::value;
-    static_assert(keyAsString || keyAsValue, "bad key type");
 
     assert(type_ == TYPE_OBJECT);
 
     // constexpr can't be removed here
-    if constexpr (keyAsString) {
-        assert(findMember(key) == memberEnd());
-    }
-    else {
+    if constexpr (keyAsValue) {
         assert(key.getType() == TYPE_STRING);
         assert(findMember(key.getString()) == memberEnd());
+    }
+    else {
+        std::string_view str(key);
+        (void)str;
+        assert(findMember(str) == memberEnd());
     }
 
     o_->emplace_back(std::forward<K>(key),
