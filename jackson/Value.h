@@ -197,42 +197,29 @@ public:
         assert(type_ == TYPE_OBJECT);
         return o_->begin();
     }
+
     ConstMemberIterator memberBegin() const
     {
         return const_cast<Value&>(*this).memberBegin();
     }
+
     MemberIterator memberEnd()
     {
         assert(type_ == TYPE_OBJECT);
         return o_->end();
     }
+
     ConstMemberIterator memberEnd() const
     {
         return const_cast<Value&>(*this).memberEnd();
     }
 
     MemberIterator findMember(std::string_view key);
+
     ConstMemberIterator findMember(std::string_view key) const;
 
-    template <typename V>
-    MemberIterator addMember(Value&& key, V&& value)
-    {
-        assert(type_ == TYPE_OBJECT);
-        assert(key.getType() == TYPE_STRING);
-        assert(findMember(key.getString()) == memberEnd());
-        o_->emplace_back(std::move(key),
-                         std::forward<V>(value));
-        return o_->end() - 1;
-    }
-
-    template <typename V>
-    MemberIterator addMember(std::string_view key, V&& value)
-    {
-        assert(type_ == TYPE_OBJECT);
-        assert(findMember(key) == memberEnd());
-        o_->emplace_back(key, std::forward<V>(value));
-        return o_->end() - 1;
-    }
+    template <typename K, typename V>
+    Value& addMember(K&& key, V&& value);
 
     template <typename T>
     Value& addValue(T&& value)
@@ -253,6 +240,9 @@ public:
         assert(type_ == TYPE_ARRAY);
         return (*a_)[i];
     }
+
+    template <typename Handler>
+    bool writeTo(Handler& handler) const;
 
 private:
     ValueType type_;
@@ -283,12 +273,35 @@ struct Member
     Value value;
 };
 
+template <typename K, typename V>
+Value& Value::addMember(K&& key, V&& value)
+{
+    constexpr bool keyAsString = std::is_same<K, std::string_view>::value;
+    constexpr bool keyAsValue = std::is_same<K, Value>::value;
+    static_assert(keyAsString || keyAsValue, "bad key type");
+
+    assert(type_ == TYPE_OBJECT);
+
+    // constexpr can't be removed here
+    if constexpr (keyAsString) {
+        assert(findMember(key) == memberEnd());
+    }
+    else {
+        assert(key.getType() == TYPE_STRING);
+        assert(findMember(key.getString()) == memberEnd());
+    }
+
+    o_->emplace_back(std::forward<K>(key),
+                     std::forward<V>(value));
+    return o_->back().value;
+}
+
 #define CALL(expr) do { if (!(expr)) return false; } while(false)
 
-template <typename ValueOrDocument, typename Handler>
-bool writeTo(const ValueOrDocument& doc, Handler& handler)
+template <typename Handler>
+inline bool Value::writeTo(Handler& handler) const
 {
-    switch (doc.getType())
+    switch (type_)
     {
         case TYPE_NULL:
             CALL(handler.Null());
@@ -300,29 +313,29 @@ bool writeTo(const ValueOrDocument& doc, Handler& handler)
             CALL(handler.Bool(false));
             break;
         case TYPE_INT32:
-            CALL(handler.Int32(doc.getInt32()));
+            CALL(handler.Int32(i32_));
             break;
         case TYPE_INT64:
-            CALL(handler.Int64(doc.getInt64()));
+            CALL(handler.Int64(i64_));
             break;
         case TYPE_DOUBLE:
-            CALL(handler.Double(doc.getDouble()));
+            CALL(handler.Double(d_));
             break;
         case TYPE_STRING:
-            CALL(handler.String(doc.getString()));
+            CALL(handler.String(getString()));
             break;
         case TYPE_ARRAY:
             CALL(handler.StartArray());
-            for (auto& val: doc.getArray()) {
-                CALL(writeTo(val, handler));
+            for (auto& val: getArray()) {
+                CALL(val.writeTo(handler));
             }
             CALL(handler.EndArray());
             break;
         case TYPE_OBJECT:
             CALL(handler.StartObject());
-            for (auto& member: doc.getObject()) {
+            for (auto& member: getObject()) {
                 handler.Key(member.key.getString());
-                CALL(writeTo(member.value, handler));
+                CALL(member.value.writeTo(handler));
             }
             CALL(handler.EndObject());
             break;

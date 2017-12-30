@@ -21,5 +21,5 @@ int main()
 
     FileWriteStream os(stdout);
     PrettyWriter writer(os);
-    writeTo(document, writer);
+    document.writeTo(writer);
 }

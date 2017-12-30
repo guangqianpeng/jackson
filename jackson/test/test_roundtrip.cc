@@ -16,7 +16,7 @@ using namespace json;
     EXPECT_EQ(err, PARSE_OK); \
     StringWriteStream os; \
     Writer writer(os); \
-    writeTo(doc, writer); \
+    doc.writeTo(writer); \
     EXPECT_EQ(json, os.get()); \
 } while(false)
 
