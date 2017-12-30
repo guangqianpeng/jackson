@@ -68,6 +68,10 @@ public:
             s_(new String(s.begin(), s.end()))
     {}
 
+    Value(const char* s, size_t len):
+            Value(std::string_view(s, len))
+    {}
+
     Value(Value&& rhs) noexcept :
             type_(rhs.type_),
             a_(rhs.a_)
