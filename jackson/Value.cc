@@ -60,8 +60,5 @@ Value::MemberIterator Value::findMember(std::string_view key)
 
 Value::ConstMemberIterator Value::findMember(std::string_view key) const
 {
-    assert(type_ == TYPE_OBJECT);
-    return std::find_if(o_->begin(), o_->end(), [key](const Member& m)->bool {
-        return m.key.getString() == key;
-    });
+    return const_cast<Value&>(*this).findMember(key);
 }
