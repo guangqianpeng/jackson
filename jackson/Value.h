@@ -218,7 +218,12 @@ public:
 
     ConstMemberIterator findMember(std::string_view key) const;
 
-    Value& addMember(std::string_view key, Value&& value);
+    template <typename K, typename V>
+    Value& addMember(K&& key, V&& value)
+    {
+        return addMember(Value(std::forward<K>(key)),
+                         Value(std::forward<V>(value)));
+    };
     Value& addMember(Value&& key, Value&& value);
 
     template <typename T>
