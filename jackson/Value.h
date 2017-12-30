@@ -190,16 +190,46 @@ public:
     }
 
     Value& operator[] (std::string_view key);
+    const Value& operator[] (std::string_view key) const;
+
+    MemberIterator memberBegin()
+    {
+        assert(type_ == TYPE_OBJECT);
+        return o_->begin();
+    }
+    ConstMemberIterator memberBegin() const
+    {
+        return const_cast<Value&>(*this).memberBegin();
+    }
+    MemberIterator memberEnd()
+    {
+        assert(type_ == TYPE_OBJECT);
+        return o_->end();
+    }
+    ConstMemberIterator memberEnd() const
+    {
+        return const_cast<Value&>(*this).memberEnd();
+    }
 
     MemberIterator findMember(std::string_view key);
     ConstMemberIterator findMember(std::string_view key) const;
 
-    template <typename K, typename V>
-    void addMember(K&& key, V&& value)
+    template <typename V>
+    void addMember(Value&& key, V&& value)
     {
         assert(type_ == TYPE_OBJECT);
-        o_->emplace_back(std::forward<K>(key),
+        assert(key.getType() == TYPE_STRING);
+        assert(findMember(key.getString()) == memberEnd());
+        o_->emplace_back(std::move(key),
                          std::forward<V>(value));
+    }
+
+    template <typename V>
+    void addMember(std::string_view key, V&& value)
+    {
+        assert(type_ == TYPE_OBJECT);
+        assert(findMember(key) == memberEnd());
+        o_->emplace_back(key, std::forward<V>(value));
     }
 
     template <typename T>

@@ -9,11 +9,11 @@ using namespace json;
 Value::Value(ValueType type): type_(type), s_(nullptr)
 {
     switch (type_) {
-        case TYPE_NULL:   break;
-        case TYPE_TRUE:   break;
-        case TYPE_FALSE:  break;
-        case TYPE_INT32:  break;
-        case TYPE_INT64:  break;
+        case TYPE_NULL:
+        case TYPE_TRUE:
+        case TYPE_FALSE:
+        case TYPE_INT32:
+        case TYPE_INT64:
         case TYPE_DOUBLE: break;
         case TYPE_STRING: s_ = new String(); break;
         case TYPE_ARRAY:  a_ = new Array();  break;
@@ -46,8 +46,14 @@ Value& Value::operator[] (std::string_view key)
     if (it != o_->end())
         return it->value;
 
-    o_->emplace_back(key, Value(TYPE_NULL));
-    return o_->back().value;
+    assert(false); // unlike std::map
+    static Value fake(TYPE_NULL);
+    return fake;
+}
+
+const Value&  Value::operator[] (std::string_view key) const
+{
+    return const_cast<Value&>(*this)[key];
 }
 
 Value::MemberIterator Value::findMember(std::string_view key)
