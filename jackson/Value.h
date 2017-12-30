@@ -151,6 +151,12 @@ public:
         return *o_;
     }
 
+    Value& setNull()
+    {
+        this->~Value();
+        return *new (this) Value(TYPE_NULL);
+    }
+
     Value& setBool(bool b)
     {
         this->~Value();
