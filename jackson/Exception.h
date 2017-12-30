@@ -59,6 +59,7 @@ private:
     ParseError err_;
 };
 
+#undef ERROR_MAP
 
 }
 
