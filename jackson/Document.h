@@ -19,6 +19,11 @@ namespace json
 class Document: public Value
 {
 public:
+    ParseError parse(const char* json, size_t len)
+    {
+        return parse(std::string_view(json, len));
+    }
+
     ParseError parse(std::string_view json)
     {
         StringReadStream is(json);
