@@ -38,4 +38,6 @@ int main()
 
     zip.setInt32(9527);
     std::cout << "Zip: " << zip.getInt32() << "\n";
+
+    document.addMember("123", Value("456"));
 }

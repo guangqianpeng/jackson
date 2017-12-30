@@ -68,3 +68,20 @@ Value::ConstMemberIterator Value::findMember(std::string_view key) const
 {
     return const_cast<Value&>(*this).findMember(key);
 }
+
+Value& Value::addMember(std::string_view key, Value&& value)
+{
+    assert(type_ == TYPE_OBJECT);
+    assert(findMember(key) == memberEnd());
+    o_->emplace_back(key, std::move(value));
+    return o_->back().value;
+}
+
+Value& Value::addMember(Value&& key, Value&& value)
+{
+    assert(type_ == TYPE_OBJECT);
+    assert(key.type_ == TYPE_STRING);
+    assert(findMember(key.getString()) == memberEnd());
+    o_->emplace_back(std::move(key), std::move(value));
+    return o_->back().value;
+}

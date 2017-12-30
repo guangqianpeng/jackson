@@ -218,8 +218,8 @@ public:
 
     ConstMemberIterator findMember(std::string_view key) const;
 
-    template <typename K, typename V>
-    Value& addMember(K&& key, V&& value);
+    Value& addMember(std::string_view key, Value&& value);
+    Value& addMember(Value&& key, Value&& value);
 
     template <typename T>
     Value& addValue(T&& value)
@@ -273,28 +273,6 @@ struct Member
     Value value;
 };
 
-template <typename K, typename V>
-Value& Value::addMember(K&& key, V&& value)
-{
-    constexpr bool keyAsValue = std::is_same<K, Value>::value;
-
-    assert(type_ == TYPE_OBJECT);
-
-    // constexpr can't be removed here
-    if constexpr (keyAsValue) {
-        assert(key.getType() == TYPE_STRING);
-        assert(findMember(key.getString()) == memberEnd());
-    }
-    else {
-        std::string_view str(key);
-        (void)str;
-        assert(findMember(str) == memberEnd());
-    }
-
-    o_->emplace_back(std::forward<K>(key),
-                     std::forward<V>(value));
-    return o_->back().value;
-}
 
 #define CALL(expr) do { if (!(expr)) return false; } while(false)
 
