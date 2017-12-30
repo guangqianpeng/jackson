@@ -215,28 +215,31 @@ public:
     ConstMemberIterator findMember(std::string_view key) const;
 
     template <typename V>
-    void addMember(Value&& key, V&& value)
+    MemberIterator addMember(Value&& key, V&& value)
     {
         assert(type_ == TYPE_OBJECT);
         assert(key.getType() == TYPE_STRING);
         assert(findMember(key.getString()) == memberEnd());
         o_->emplace_back(std::move(key),
                          std::forward<V>(value));
+        return o_->end() - 1;
     }
 
     template <typename V>
-    void addMember(std::string_view key, V&& value)
+    MemberIterator addMember(std::string_view key, V&& value)
     {
         assert(type_ == TYPE_OBJECT);
         assert(findMember(key) == memberEnd());
         o_->emplace_back(key, std::forward<V>(value));
+        return o_->end() - 1;
     }
 
     template <typename T>
-    void addValue(T&& value)
+    Value& addValue(T&& value)
     {
         assert(type_ == TYPE_ARRAY);
         a_->emplace_back(std::forward<T>(value));
+        return a_->back();
     }
 
     const Value& operator[] (size_t i) const
