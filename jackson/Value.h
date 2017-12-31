@@ -108,6 +108,15 @@ public:
         return 1;
     }
 
+    bool isNull()   const { return type_ == TYPE_NULL; }
+    bool isBool()   const { return type_ == TYPE_TRUE || type_ == TYPE_FALSE; }
+    bool isInt32()  const { return type_ == TYPE_INT32; }
+    bool isInt64()  const { return type_ == TYPE_INT64; }
+    bool isDouble() const { return type_ == TYPE_DOUBLE; }
+    bool isString() const { return type_ == TYPE_STRING; }
+    bool isArray()  const { return type_ == TYPE_ARRAY; }
+    bool isObject() const { return type_ == TYPE_OBJECT; }
+
     // getter && setter
     bool getBool() const
     {
