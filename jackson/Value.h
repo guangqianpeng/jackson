@@ -35,7 +35,7 @@ enum ValueType {
 struct Member;
 class Document;
 
-class Value: noncopyable
+class Value
 {
     friend class Document;
 public:
@@ -80,10 +80,18 @@ public:
         rhs.a_ = nullptr;
     }
 
+    Value(Value& rhs):
+            Value(std::move(rhs))
+    {}
+
+    Value(const Value& rhs) = delete;
+
     ~Value();
 
     // never copy or construct from Document
+    void operator=(const Value& rhs) = delete;
     Value(Document&& rhs) = delete;
+    void operator=(const Document& rhs) = delete;
     void operator=(Document&& rhs) = delete;
 
     Value& operator=(Value&& rhs) noexcept
@@ -95,6 +103,11 @@ public:
         rhs.type_ = TYPE_NULL;
         rhs.a_ = nullptr;
         return *this;
+    }
+
+    Value& operator=(Value& rhs)
+    {
+        return (*this) = std::move(rhs);
     }
 
     ValueType getType() const { return type_; }
