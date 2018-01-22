@@ -60,7 +60,7 @@ Value::MemberIterator Value::findMember(std::string_view key)
 {
     assert(type_ == TYPE_OBJECT);
     return std::find_if(o_->begin(), o_->end(), [key](const Member& m)->bool {
-        return m.key.getString() == key;
+        return m.key.getStringView() == key;
     });
 }
 
@@ -74,7 +74,7 @@ Value& Value::addMember(Value&& key, Value&& value)
 {
     assert(type_ == TYPE_OBJECT);
     assert(key.type_ == TYPE_STRING);
-    assert(findMember(key.getString()) == memberEnd());
+    assert(findMember(key.getStringView()) == memberEnd());
     o_->emplace_back(std::move(key), std::move(value));
     return o_->back().value;
 }

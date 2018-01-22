@@ -155,10 +155,15 @@ public:
         return d_;
     }
 
-    std::string_view getString() const
+    std::string_view getStringView() const
     {
         assert(type_ == TYPE_STRING);
         return std::string_view(&*s_->begin(), s_->size());
+    }
+
+    std::string getString() const
+    {
+        return std::string(getStringView());
     }
 
     const Array& getArray() const
@@ -337,7 +342,7 @@ inline bool Value::writeTo(Handler& handler) const
             CALL(handler.Double(d_));
             break;
         case TYPE_STRING:
-            CALL(handler.String(getString()));
+            CALL(handler.String(getStringView()));
             break;
         case TYPE_ARRAY:
             CALL(handler.StartArray());
@@ -349,7 +354,7 @@ inline bool Value::writeTo(Handler& handler) const
         case TYPE_OBJECT:
             CALL(handler.StartObject());
             for (auto& member: getObject()) {
-                handler.Key(member.key.getString());
+                handler.Key(member.key.getStringView());
                 CALL(member.value.writeTo(handler));
             }
             CALL(handler.EndObject());

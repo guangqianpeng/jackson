@@ -31,10 +31,10 @@ int main()
 
 
     Value& state = document["State"];
-    std::cout << "State: " << state.getString() << '\n';
+    std::cout << "State: " << state.getStringView() << '\n';
 
     Value& zip = document["Zip"];
-    std::cout << "Zip: " << zip.getString() << "\n";
+    std::cout << "Zip: " << zip.getStringView() << "\n";
 
     zip.setInt32(9527);
     std::cout << "Zip: " << zip.getInt32() << "\n";

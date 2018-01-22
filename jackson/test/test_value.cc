@@ -179,7 +179,7 @@ TEST(json_value, array)
         EXPECT_EQ(array[3].getType(), TYPE_NULL);
         EXPECT_EQ(array[4].getType(), TYPE_DOUBLE);
 
-        EXPECT_TRUE(array[0].getString() == "hehe");
+        EXPECT_TRUE(array[0].getStringView() == "hehe");
         EXPECT_EQ(array[4].getDouble(), 0.0);
     }
 
@@ -212,7 +212,7 @@ TEST(json_value, object)
     EXPECT_EQ(doc["o"].getType(), TYPE_OBJECT);
 
     EXPECT_EQ(doc["i"].getInt32(), 123);
-    EXPECT_EQ(doc["s"].getString(), "abc");
+    EXPECT_EQ(doc["s"].getStringView(), "abc");
 
     auto& array = doc["a"].getArray();
     EXPECT_EQ(array.size(), 3);
