@@ -72,6 +72,11 @@ public:
             s_(new String(s.begin(), s.end()))
     {}
 
+    explicit Value(const char* s):
+            type_(TYPE_STRING),
+            s_(new String(s, s + strlen(s)))
+    {}
+
     Value(const char* s, size_t len):
             Value(std::string_view(s, len))
     {}
@@ -259,12 +264,14 @@ public:
 
     ConstMemberIterator findMember(std::string_view key) const;
 
-    template <typename K, typename V>
-    Value& addMember(K&& key, V&& value)
+    template <typename V>
+    Value& addMember(const char* key, V&& value)
     {
-        return addMember(Value(std::forward<K>(key)),
+        return addMember(Value(key),
                          Value(std::forward<V>(value)));
     };
+
+
     Value& addMember(Value&& key, Value&& value);
 
     template <typename T>
