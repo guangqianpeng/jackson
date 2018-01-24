@@ -44,7 +44,7 @@ public: // handler
     }
     bool Bool(bool b)
     {
-        addValue(Value(b ? TYPE_TRUE : TYPE_FALSE));
+        addValue(Value(b));
         return true;
     }
     bool Int32(int32_t i32)

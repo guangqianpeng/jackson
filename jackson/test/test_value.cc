@@ -61,10 +61,10 @@ TEST(json_value, null) {
 }
 
 TEST(json_value, bool_) {
-    TEST_BOOL(TYPE_TRUE, true, "true");
-    TEST_BOOL(TYPE_TRUE, true, "\r\ntrue ");
-    TEST_BOOL(TYPE_FALSE, false, " false");
-    TEST_BOOL(TYPE_FALSE, false, "false ");
+    TEST_BOOL(TYPE_BOOL, true, "true");
+    TEST_BOOL(TYPE_BOOL, true, "\r\ntrue ");
+    TEST_BOOL(TYPE_BOOL, false, " false");
+    TEST_BOOL(TYPE_BOOL, false, "false ");
 }
 
 TEST(json_value, number) {
@@ -174,8 +174,8 @@ TEST(json_value, array)
         auto& array = doc.getArray();
         EXPECT_EQ(5, array.size());
         EXPECT_EQ(array[0].getType(), TYPE_STRING);
-        EXPECT_EQ(array[1].getType(), TYPE_TRUE);
-        EXPECT_EQ(array[2].getType(), TYPE_FALSE);
+        EXPECT_EQ(array[1].getType(), TYPE_BOOL);
+        EXPECT_EQ(array[2].getType(), TYPE_BOOL);
         EXPECT_EQ(array[3].getType(), TYPE_NULL);
         EXPECT_EQ(array[4].getType(), TYPE_DOUBLE);
 
@@ -204,8 +204,8 @@ TEST(json_value, object)
 
     EXPECT_EQ(doc.getObject().size(), 7);
     EXPECT_EQ(doc["n"].getType(), TYPE_NULL);
-    EXPECT_EQ(doc["f"].getType(), TYPE_FALSE);
-    EXPECT_EQ(doc["t"].getType(), TYPE_TRUE);
+    EXPECT_EQ(doc["f"].getType(), TYPE_BOOL);
+    EXPECT_EQ(doc["t"].getType(), TYPE_BOOL);
     EXPECT_EQ(doc["i"].getType(), TYPE_INT32);
     EXPECT_EQ(doc["s"].getType(), TYPE_STRING);
     EXPECT_EQ(doc["a"].getType(), TYPE_ARRAY);

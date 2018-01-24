@@ -22,8 +22,7 @@ using namespace std::string_view_literals;
 
 enum ValueType {
     TYPE_NULL,
-    TYPE_TRUE,
-    TYPE_FALSE,
+    TYPE_BOOL,
     TYPE_INT32,
     TYPE_INT64,
     TYPE_DOUBLE,
@@ -47,6 +46,11 @@ public:
 
 public:
     explicit Value(ValueType type = TYPE_NULL);
+
+    explicit Value(bool b):
+            type_(TYPE_BOOL),
+            b_(b)
+    {}
 
     explicit Value(int32_t i32):
             type_(TYPE_INT32),
@@ -122,7 +126,7 @@ public:
     }
 
     bool isNull()   const { return type_ == TYPE_NULL; }
-    bool isBool()   const { return type_ == TYPE_TRUE || type_ == TYPE_FALSE; }
+    bool isBool()   const { return type_ == TYPE_BOOL; }
     bool isInt32()  const { return type_ == TYPE_INT32; }
     bool isInt64()  const { return type_ == TYPE_INT64; }
     bool isDouble() const { return type_ == TYPE_DOUBLE; }
@@ -133,8 +137,8 @@ public:
     // getter && setter
     bool getBool() const
     {
-        assert(type_ == TYPE_TRUE || type_ == TYPE_FALSE);
-        return type_ == TYPE_TRUE;
+        assert(type_ == TYPE_BOOL);
+        return b_;
     }
 
     int32_t getInt32() const
@@ -290,6 +294,7 @@ private:
     ValueType type_;
 
     union {
+        bool     b_;
         int32_t  i32_;
         int64_t  i64_;
         double   d_;
@@ -326,11 +331,8 @@ inline bool Value::writeTo(Handler& handler) const
         case TYPE_NULL:
             CALL(handler.Null());
             break;
-        case TYPE_TRUE:
-            CALL(handler.Bool(true));
-            break;
-        case TYPE_FALSE:
-            CALL(handler.Bool(false));
+        case TYPE_BOOL:
+            CALL(handler.Bool(b_));
             break;
         case TYPE_INT32:
             CALL(handler.Int32(i32_));

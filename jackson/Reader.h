@@ -71,6 +71,8 @@ private:
     template <typename ReadStream, typename Handler>
     static void parseLiteral(ReadStream& is, Handler& handler, const char* literal, ValueType type)
     {
+        char c = *literal;
+
         is.assertNext(*literal++);
         while (*literal != '\0' && *literal == is.peek()) {
             literal++;
@@ -81,11 +83,8 @@ private:
                 case TYPE_NULL:
                     CALL(handler.Null());
                     return;
-                case TYPE_TRUE:
-                    CALL(handler.Bool(true));
-                    return;
-                case TYPE_FALSE:
-                    CALL(handler.Bool(false));
+                case TYPE_BOOL:
+                    CALL(handler.Bool(c == 't'));
                     return;
                 default:
                     assert(false && "bad type");
@@ -302,8 +301,8 @@ private:
 
         switch (is.peek()) {
             case 'n': return parseLiteral(is, handler, "null", TYPE_NULL);
-            case 't': return parseLiteral(is, handler, "true", TYPE_TRUE);
-            case 'f': return parseLiteral(is, handler, "false", TYPE_FALSE);
+            case 't': return parseLiteral(is, handler, "true", TYPE_BOOL);
+            case 'f': return parseLiteral(is, handler, "false", TYPE_BOOL);
             case '"': return parseString(is, handler, false);
             case '[': return parseArray(is, handler);
             case '{': return parseObject(is, handler);

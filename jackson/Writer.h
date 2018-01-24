@@ -43,7 +43,7 @@ public:
     }
     bool Bool(bool b)
     {
-        prefix(b ? TYPE_TRUE : TYPE_FALSE);
+        prefix(TYPE_BOOL);
         os_.put(b ? "true" : "false");
         return true;
     }

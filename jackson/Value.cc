@@ -10,8 +10,7 @@ Value::Value(ValueType type): type_(type), s_(nullptr)
 {
     switch (type_) {
         case TYPE_NULL:
-        case TYPE_TRUE:
-        case TYPE_FALSE:
+        case TYPE_BOOL:
         case TYPE_INT32:
         case TYPE_INT64:
         case TYPE_DOUBLE: break;
@@ -26,8 +25,7 @@ Value::~Value()
 {
     switch (type_) {
         case TYPE_NULL:
-        case TYPE_TRUE:
-        case TYPE_FALSE:
+        case TYPE_BOOL:
         case TYPE_INT32:
         case TYPE_INT64:
         case TYPE_DOUBLE: break;
