@@ -71,11 +71,13 @@ public:
 
         // fixme: faster conversion please
         char buf[32];
-        sprintf(buf, "%.17g", d);
+        int n = sprintf(buf, "%.17g", d);
 
         // type information loss if ".0" not added
         // "1.0" -> double 1 -> "1"
-        if (!strchr(buf, '.') && !strchr(buf, 'e')) {
+        assert(n > 0 && n < 32);
+        auto it = std::find_if_not(buf, buf + n, isdigit);
+        if (it == buf + n) {
             strcat(buf, ".0");
         }
 
