@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <vector>
 #include <cassert>
+#include <cmath>
 
 #include <jackson/Value.h>
 
@@ -72,10 +73,11 @@ public:
         // fixme: faster conversion please
         char buf[32];
 
-        if (d == std::numeric_limits<double>::infinity()) {
+
+        if (std::isinf(d)) {
             strcpy(buf, "Infinity");
         }
-        else if (d == std::numeric_limits<double>::signaling_NaN()) {
+        else if (std::isnan(d)) {
             strcpy(buf, "NaN");
         }
         else {

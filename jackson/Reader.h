@@ -6,6 +6,7 @@
 #define TJSON_READER_H
 
 #include <cassert>
+#include <cmath>
 #include <string>
 #include <vector>
 #include <variant>
@@ -87,9 +88,8 @@ private:
                     CALL(handler.Bool(c == 't'));
                     return;
                 case TYPE_DOUBLE:
-                    CALL(handler.Double(c == 'N' ?
-                                        std::numeric_limits<double>::signaling_NaN():
-                                        std::numeric_limits<double>::infinity()));
+                    CALL(handler.Double(c == 'N' ? NAN : INFINITY));
+                    return;
                 default:
                     assert(false && "bad type");
             }
@@ -104,8 +104,9 @@ private:
             parseLiteral(is, handler, "NaN", TYPE_DOUBLE);
             return;
         }
-        else if (is.peek() == "I") {
+        else if (is.peek() == 'I') {
             parseLiteral(is, handler, "Infinity", TYPE_DOUBLE);
+            return;
         }
 
         auto start = is.getIter();

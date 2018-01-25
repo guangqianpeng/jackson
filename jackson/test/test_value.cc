@@ -28,7 +28,8 @@ using namespace json;
     ParseError err = doc.parse(json); \
     EXPECT_EQ(err, PARSE_OK); \
     EXPECT_EQ(doc.getType(), TYPE_DOUBLE); \
-    EXPECT_EQ(doc.getDouble(), num); \
+    if (std::isnan(num)) { EXPECT_TRUE(std::isnan(doc.getDouble())); } \
+    else                 { EXPECT_EQ(doc.getDouble(), num); }\
 } while(false)
 
 #define TEST_INT32(num, json) do { \
@@ -84,6 +85,8 @@ TEST(json_value, number) {
     TEST_DOUBLE(-2.2250738585072014e-308, "-2.2250738585072014e-308");
     TEST_DOUBLE(1.7976931348623157e308, "1.7976931348623157e308");
     TEST_DOUBLE(-1.7976931348623157e308, "-1.7976931348623157e308");
+    TEST_DOUBLE(INFINITY, "Infinity");
+    TEST_DOUBLE(NAN, "NaN");
 
     TEST_INT32(0, "0");
     TEST_INT32(-0, "0");
