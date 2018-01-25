@@ -72,6 +72,13 @@ public:
         // fixme: faster conversion please
         char buf[32];
         sprintf(buf, "%.17g", d);
+
+        // type information loss if ".0" not added
+        // "1.0" -> double 1 -> "1"
+        if (!strchr(buf, '.') && !strchr(buf, 'e')) {
+            strcat(buf, ".0");
+        }
+
         os_.put(buf);
         return true;
     }
