@@ -86,6 +86,10 @@ private:
                 case TYPE_BOOL:
                     CALL(handler.Bool(c == 't'));
                     return;
+                case TYPE_DOUBLE:
+                    CALL(handler.Double(c == 'N' ?
+                                        std::numeric_limits<double>::signaling_NaN():
+                                        std::numeric_limits<double>::infinity()));
                 default:
                     assert(false && "bad type");
             }
@@ -96,7 +100,14 @@ private:
     template <typename ReadStream, typename Handler>
     static void parseNumber(ReadStream& is, Handler& handler)
     {
-        bool useDouble = false;
+        if (is.peek() == 'N') {
+            parseLiteral(is, handler, "NaN", TYPE_DOUBLE);
+            return;
+        }
+        else if (is.peek() == "I") {
+            parseLiteral(is, handler, "Infinity", TYPE_DOUBLE);
+        }
+
         auto start = is.getIter();
 
         if (is.peek() == '-')
@@ -115,6 +126,7 @@ private:
         else
             throw Exception(PARSE_BAD_VALUE);
 
+        bool useDouble = false;
         if (is.peek() == '.') {
             useDouble = true;
             is.next();
