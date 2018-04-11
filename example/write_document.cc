@@ -13,16 +13,20 @@ using namespace json;
 int main()
 {
     Document document;
-    ParseError err = document.parse("{"
-    "    \"precision\": \"zip\","
-    "    \"Latitude\": 37.766800000000003,"
-    "    \"Longitude\": -122.3959,"
-    "    \"Address\": \"\","
-    "    \"City\": \"SAN FRANCISCO\","
-    "    \"State\": \"CA\","
-    "    \"Zip\": \"94107\","
-    "    \"Country\": \"US\""
-    "    }");
+    ParseError err = document.parse(R"(
+{
+    "precision": "zip",
+    "Latitude": 37.766800000000003,
+    "Longitude": -122.3959,
+    "Address": "sadfasdf",
+    "City": "SAN FRANCISCO",
+    "State": "CA",
+    "Zip": "94107",
+    "Country": "US",
+    "Number": 0i32,
+    "Number2": 0i64
+}
+)");
 
     if (err != PARSE_OK) {
         puts(parseErrorStr(err));

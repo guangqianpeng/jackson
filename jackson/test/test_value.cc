@@ -94,12 +94,29 @@ TEST(json_value, number) {
     TEST_INT32(-1, "-1");
     TEST_INT32(2147483647, "2147483647");
     TEST_INT32(-2147483648, "-2147483648");
+    TEST_INT32(0, "0i32");
+    TEST_INT32(-0, "0i32");
+    TEST_INT32(1, "1i32");
+    TEST_INT32(-1, "-1i32");
+    TEST_INT32(2147483647, "2147483647i32");
+    TEST_INT32(-2147483648, "-2147483648i32");
 
     TEST_INT64(2147483648LL, "2147483648");
     TEST_INT64(-2147483649LL, "-2147483649");
-    // gcc refuse large literal
     TEST_INT64(std::numeric_limits<int64_t>::max(), "9223372036854775807");
     TEST_INT64(std::numeric_limits<int64_t>::min(), "-9223372036854775808");
+
+    TEST_INT64(2147483648LL, "2147483648i64");
+    TEST_INT64(-2147483649LL, "-2147483649i64");
+    TEST_INT64(std::numeric_limits<int64_t>::max(), "9223372036854775807i64");
+    TEST_INT64(std::numeric_limits<int64_t>::min(), "-9223372036854775808i64");
+
+    TEST_INT64(0, "0i64");
+    TEST_INT64(-0, "0i64");
+    TEST_INT64(1, "1i64");
+    TEST_INT64(-1, "-1i64");
+    TEST_INT64(2147483647, "2147483647i64");
+    TEST_INT64(-2147483648, "-2147483648i64");
 }
 
 TEST(json_value, string_)

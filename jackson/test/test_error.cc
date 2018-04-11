@@ -34,6 +34,8 @@ TEST(json_error, bad_value) {
     TEST_ERROR(err, "10.0e+");
     TEST_ERROR(err, "-00");
     TEST_ERROR(err, "[null,]");
+    TEST_ERROR(err, "1.0i32");
+    TEST_ERROR(err, "0.0i64");
 }
 
 TEST(json_error, root_not_singular) {
@@ -54,6 +56,10 @@ TEST(json_error, num_too_big) {
     TEST_ERROR(err, "-1e309");
     TEST_ERROR(err, "9223372036854775808");
     TEST_ERROR(err, "-9223372036854775809");
+    TEST_ERROR(err, "9223372036854775808i64");
+    TEST_ERROR(err, "-9223372036854775809i64");
+    TEST_ERROR(err, "12345678901i32");
+    TEST_ERROR(err, "-12345678901i32i32");
 }
 
 TEST(json_error, bad_string_char)

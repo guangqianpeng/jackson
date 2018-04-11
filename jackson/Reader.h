@@ -100,6 +100,7 @@ private:
     template <typename ReadStream, typename Handler>
     static void parseNumber(ReadStream& is, Handler& handler)
     {
+        // parse 'NaN' (Not a Number) && 'Infinity'
         if (is.peek() == 'N') {
             parseLiteral(is, handler, "NaN", TYPE_DOUBLE);
             return;
@@ -127,9 +128,10 @@ private:
         else
             throw Exception(PARSE_BAD_VALUE);
 
-        bool useDouble = false;
+        auto expectType = TYPE_NULL;
+
         if (is.peek() == '.') {
-            useDouble = true;
+            expectType = TYPE_DOUBLE;
             is.next();
             if (!isDigit(is.peek()))
                 throw Exception(PARSE_BAD_VALUE);
@@ -138,7 +140,7 @@ private:
                 is.next();
         }
         if (is.peek() == 'e' || is.peek() == 'E') {
-            useDouble = true;
+            expectType = TYPE_DOUBLE;
             is.next();
             if (is.peek() == '+' || is.peek() == '-')
                 is.next();
@@ -147,6 +149,28 @@ private:
             is.next();
             while (isDigit(is.peek()))
                 is.next();
+        }
+
+        // int64 or int32 ?
+        if (is.peek() == 'i') {
+            is.next();
+            if (expectType == TYPE_DOUBLE)
+                throw Exception(PARSE_BAD_VALUE);
+            switch (is.next())
+            {
+                case '3':
+                    if (is.next() != '2')
+                        throw Exception(PARSE_BAD_VALUE);
+                    expectType = TYPE_INT32;
+                    break;
+                case '6':
+                    if (is.next() != '4')
+                        throw Exception(PARSE_BAD_VALUE);
+                    expectType = TYPE_INT64;
+                    break;
+                default:
+                    throw Exception(PARSE_BAD_VALUE);
+            }
         }
 
         auto end = is.getIter();
@@ -159,20 +183,34 @@ private:
             // because new string buffer is needed
             //
             std::size_t idx;
-            if (useDouble) {
+            if (expectType == TYPE_DOUBLE) {
                 double d = __gnu_cxx::__stoa(&std::strtod, "stod", &*start, &idx);
                 assert(start + idx == end);
                 CALL(handler.Double(d));
             }
+
             else {
                 int64_t i64 = __gnu_cxx::__stoa(&std::strtol, "stol", &*start, &idx, 10);
-                assert(start + idx == end);
-                if (i64 <= std::numeric_limits<int32_t>::max() &&
-                    i64 >= std::numeric_limits<int32_t>::min()) {
+                if (expectType == TYPE_INT64)
+                {
+                    CALL(handler.Int64(i64));
+                }
+                else if (expectType == TYPE_INT32)
+                {
+                    if (i64 > std::numeric_limits<int32_t>::max() ||
+                        i64 < std::numeric_limits<int32_t>::min()) {
+                        throw std::out_of_range("int32_t overflow");
+                    }
+                    CALL(handler.Int32(static_cast<int32_t>(i64)));
+                }
+                else if (i64 <= std::numeric_limits<int32_t>::max() &&
+                         i64 >= std::numeric_limits<int32_t>::min()) {
                     CALL(handler.Int32(static_cast<int32_t>(i64)));
                 }
                 else
+                {
                     CALL(handler.Int64(i64));
+                }
             }
         }
         catch (std::out_of_range &e) {

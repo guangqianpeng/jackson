@@ -15,3 +15,6 @@ target_link_libraries(pretty jackson)
 
 add_executable(write_document write_document.cc)
 target_link_libraries(write_document jackson)
+
+add_executable(struct struct.cc)
+target_link_libraries(struct jackson)
