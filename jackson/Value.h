@@ -133,7 +133,7 @@ public:
     bool isNull()   const { return type_ == TYPE_NULL; }
     bool isBool()   const { return type_ == TYPE_BOOL; }
     bool isInt32()  const { return type_ == TYPE_INT32; }
-    bool isInt64()  const { return type_ == TYPE_INT64; }
+    bool isInt64()  const { return type_ == TYPE_INT64 || type_ == TYPE_INT32; }
     bool isDouble() const { return type_ == TYPE_DOUBLE; }
     bool isString() const { return type_ == TYPE_STRING; }
     bool isArray()  const { return type_ == TYPE_ARRAY; }
@@ -154,8 +154,8 @@ public:
 
     int64_t getInt64() const
     {
-        assert(type_ == TYPE_INT64);
-        return i64_;
+        assert(type_ == TYPE_INT64 || type_ == TYPE_INT32);
+        return type_ == TYPE_INT64 ? i64_ : i32_;
     }
 
     double getDouble() const
