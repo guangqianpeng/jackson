@@ -155,9 +155,9 @@ private:
         Value* lastValue()
         {
             if (type() == TYPE_ARRAY) {
-                return &value->a_->back();
+                return &value->a_->data.back();
             } else {
-                return &value->o_->back().value;
+                return &value->o_->data.back().value;
             }
         }
 

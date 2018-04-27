@@ -34,15 +34,51 @@ enum ValueType {
 struct Member;
 class Document;
 
+namespace detail
+{
+
+template <typename T>
+struct AddRefCount
+{
+    template <typename... Args>
+    AddRefCount(Args&&... args):
+            refCount(1),
+            data(std::forward<Args>(args)...)
+    {}
+    ~AddRefCount()
+    { assert(refCount == 0); }
+
+    AddRefCount& incrRefCount()
+    {
+        assert(refCount > 0);
+        refCount++;
+        return *this;
+    }
+
+    AddRefCount& decrRefCount()
+    {
+        assert(refCount > 0);
+        refCount--;
+        return *this;
+    }
+
+    bool shouldDestructed()
+    {
+        return refCount == 0;
+    }
+
+    int refCount;
+    T data;
+};
+
+}
+
 class Value
 {
     friend class Document;
 public:
-    using String   = std::vector<char>;
-    using Array    = std::vector<Value>;
-    using Object   = std::vector<Member>;
-    using MemberIterator = Object::iterator;
-    using ConstMemberIterator = Object::const_iterator;
+    typedef std::vector<Member>::iterator       MemberIterator;
+    typedef std::vector<Member>::const_iterator ConstMemberIterator;
 
 public:
     explicit Value(ValueType type = TYPE_NULL);
@@ -69,66 +105,32 @@ public:
 
     explicit Value(std::string_view s):
             type_(TYPE_STRING),
-            s_(new String(s.begin(), s.end()))
+            s_(new StringWithRefCount(s.begin(), s.end()))
     {}
 
     explicit Value(const char* s):
             type_(TYPE_STRING),
-            s_(new String(s, s + strlen(s)))
+            s_(new StringWithRefCount(s, s + strlen(s)))
     {}
 
     Value(const char* s, size_t len):
             Value(std::string_view(s, len))
     {}
 
-    Value(Value&& rhs) noexcept :
-            type_(rhs.type_),
-            a_(rhs.a_)
-    {
-        rhs.type_ = TYPE_NULL;
-        rhs.a_ = nullptr;
-    }
+    Value(const Value& rhs);
+    Value(Value&& rhs);
 
-    Value(Value& rhs):
-            Value(std::move(rhs))
-    {}
-
-    Value(const Value& rhs) = delete;
+    Value& operator=(const Value& rhs);
+    Value& operator=(Value&& rhs);
 
     ~Value();
 
     // never copy or construct from Document
-    void operator=(const Value& rhs) = delete;
-    Value(Document&& rhs) = delete;
+    Value(const Document& rhs) = delete;
     void operator=(const Document& rhs) = delete;
-    void operator=(Document&& rhs) = delete;
-
-    Value& operator=(Value&& rhs) noexcept
-    {
-        assert(this != &rhs);
-        this->~Value();
-        type_ = rhs.type_;
-        a_ = rhs.a_;
-        rhs.type_ = TYPE_NULL;
-        rhs.a_ = nullptr;
-        return *this;
-    }
-
-    Value& operator=(Value& rhs)
-    {
-        return (*this) = std::move(rhs);
-    }
 
     ValueType getType() const { return type_; }
-
-    size_t getSize() const
-    {
-        if (type_ == TYPE_ARRAY)
-            return a_->size();
-        else if (type_ == TYPE_OBJECT)
-            return o_->size();
-        return 1;
-    }
+    size_t getSize() const;
 
     bool isNull()   const { return type_ == TYPE_NULL; }
     bool isBool()   const { return type_ == TYPE_BOOL; }
@@ -167,7 +169,7 @@ public:
     std::string_view getStringView() const
     {
         assert(type_ == TYPE_STRING);
-        return std::string_view(&*s_->begin(), s_->size());
+        return std::string_view(&*s_->data.begin(), s_->data.size());
     }
 
     std::string getString() const
@@ -175,16 +177,16 @@ public:
         return std::string(getStringView());
     }
 
-    const Array& getArray() const
+    const auto& getArray() const
     {
         assert(type_ == TYPE_ARRAY);
-        return *a_;
+        return a_->data;
     }
 
-    const Object& getObject() const
+    const auto& getObject() const
     {
         assert(type_ == TYPE_OBJECT);
-        return *o_;
+        return o_->data;
     }
 
     Value& setNull()
@@ -241,7 +243,7 @@ public:
     MemberIterator memberBegin()
     {
         assert(type_ == TYPE_OBJECT);
-        return o_->begin();
+        return o_->data.begin();
     }
 
     ConstMemberIterator memberBegin() const
@@ -252,7 +254,7 @@ public:
     MemberIterator memberEnd()
     {
         assert(type_ == TYPE_OBJECT);
-        return o_->end();
+        return o_->data.end();
     }
 
     ConstMemberIterator memberEnd() const
@@ -278,20 +280,20 @@ public:
     Value& addValue(T&& value)
     {
         assert(type_ == TYPE_ARRAY);
-        a_->emplace_back(std::forward<T>(value));
-        return a_->back();
+        a_->data.emplace_back(std::forward<T>(value));
+        return a_->data.back();
     }
 
     const Value& operator[] (size_t i) const
     {
         assert(type_ == TYPE_ARRAY);
-        return (*a_)[i];
+        return a_->data[i];
     }
 
     Value& operator[] (size_t i)
     {
         assert(type_ == TYPE_ARRAY);
-        return (*a_)[i];
+        return a_->data[i];
     }
 
     template <typename Handler>
@@ -300,14 +302,18 @@ public:
 private:
     ValueType type_;
 
+    typedef detail::AddRefCount<std::vector<char>>   StringWithRefCount;
+    typedef detail::AddRefCount<std::vector<Value>>  ArrayWithRefCount;
+    typedef detail::AddRefCount<std::vector<Member>> ObjectWithRefCount;
+
     union {
         bool     b_;
         int32_t  i32_;
         int64_t  i64_;
         double   d_;
-        String*  s_;
-        Array*   a_;
-        Object*  o_;
+        StringWithRefCount*  s_;
+        ArrayWithRefCount*   a_;
+        ObjectWithRefCount*  o_;
     };
 };
 

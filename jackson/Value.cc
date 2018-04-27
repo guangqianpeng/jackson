@@ -6,7 +6,9 @@
 
 using namespace json;
 
-Value::Value(ValueType type): type_(type), s_(nullptr)
+Value::Value(const json::Value& rhs)
+        : type_(rhs.type_)
+        , a_(rhs.a_)
 {
     switch (type_) {
         case TYPE_NULL:
@@ -14,10 +16,73 @@ Value::Value(ValueType type): type_(type), s_(nullptr)
         case TYPE_INT32:
         case TYPE_INT64:
         case TYPE_DOUBLE: break;
-        case TYPE_STRING: s_ = new String(); break;
-        case TYPE_ARRAY:  a_ = new Array();  break;
-        case TYPE_OBJECT: o_ = new Object(); break;
-        default: assert(false && "bad value type in ctor");
+        case TYPE_STRING:
+            s_->incrRefCount(); break;
+        case TYPE_ARRAY:
+            a_->incrRefCount(); break;
+        case TYPE_OBJECT:
+            o_->incrRefCount(); break;
+        default: assert(false && "bad value type");
+    }
+}
+
+Value::Value(Value&& rhs)
+        : type_(rhs.type_)
+        , a_(rhs.a_)
+{
+    rhs.type_ = TYPE_NULL;
+    rhs.a_ = nullptr;
+}
+
+Value& Value::operator=(const json::Value& rhs)
+{
+    assert(this != &rhs);
+    this->~Value();
+    type_ = rhs.type_;
+    a_ = rhs.a_;
+    switch (type_)
+    {
+        case TYPE_NULL:
+        case TYPE_BOOL:
+        case TYPE_INT32:
+        case TYPE_INT64:
+        case TYPE_DOUBLE: break;
+        case TYPE_STRING:
+            s_->incrRefCount(); break;
+        case TYPE_ARRAY:
+            a_->incrRefCount(); break;
+        case TYPE_OBJECT:
+            o_->incrRefCount(); break;
+        default: assert(false && "bad value type");
+    }
+    return *this;
+}
+
+Value& Value::operator=(Value&& rhs)
+{
+    assert(this != &rhs);
+    this->~Value();
+    type_ = rhs.type_;
+    a_ = rhs.a_;
+    rhs.type_ = TYPE_NULL;
+    rhs.a_ = nullptr;
+    return *this;
+}
+
+Value::Value(ValueType type)
+        : type_(type)
+        , s_(nullptr)
+{
+    switch (type_) {
+        case TYPE_NULL:
+        case TYPE_BOOL:
+        case TYPE_INT32:
+        case TYPE_INT64:
+        case TYPE_DOUBLE:                                break;
+        case TYPE_STRING: s_ = new StringWithRefCount(); break;
+        case TYPE_ARRAY:  a_ = new ArrayWithRefCount();  break;
+        case TYPE_OBJECT: o_ = new ObjectWithRefCount(); break;
+        default: assert(false && "bad value type");
     }
 }
 
@@ -29,10 +94,19 @@ Value::~Value()
         case TYPE_INT32:
         case TYPE_INT64:
         case TYPE_DOUBLE: break;
-        case TYPE_STRING: delete s_; break;
-        case TYPE_ARRAY:  delete a_; break;
-        case TYPE_OBJECT: delete o_; break;
-        default: assert(false && "bad value type in dtor");
+        case TYPE_STRING:
+            if (s_->decrRefCount().shouldDestructed())
+                delete s_;
+            break;
+        case TYPE_ARRAY:
+            if (a_->decrRefCount().shouldDestructed())
+                delete a_;
+            break;
+        case TYPE_OBJECT:
+            if (o_->decrRefCount().shouldDestructed())
+                delete o_;
+            break;
+        default: assert(false && "bad value type");
     }
 }
 
@@ -41,12 +115,21 @@ Value& Value::operator[] (std::string_view key)
     assert(type_ == TYPE_OBJECT);
 
     auto it = findMember(key);
-    if (it != o_->end())
+    if (it != o_->data.end())
         return it->value;
 
     assert(false); // unlike std::map
     static Value fake(TYPE_NULL);
     return fake;
+}
+
+size_t Value::getSize() const
+{
+    if (type_ == TYPE_ARRAY)
+        return a_->data.size();
+    else if (type_ == TYPE_OBJECT)
+        return o_->data.size();
+    return 1;
 }
 
 const Value&  Value::operator[] (std::string_view key) const
@@ -57,7 +140,7 @@ const Value&  Value::operator[] (std::string_view key) const
 Value::MemberIterator Value::findMember(std::string_view key)
 {
     assert(type_ == TYPE_OBJECT);
-    return std::find_if(o_->begin(), o_->end(), [key](const Member& m)->bool {
+    return std::find_if(o_->data.begin(), o_->data.end(), [key](const Member& m)->bool {
         return m.key.getStringView() == key;
     });
 }
@@ -73,6 +156,6 @@ Value& Value::addMember(Value&& key, Value&& value)
     assert(type_ == TYPE_OBJECT);
     assert(key.type_ == TYPE_STRING);
     assert(findMember(key.getStringView()) == memberEnd());
-    o_->emplace_back(std::move(key), std::move(value));
-    return o_->back().value;
+    o_->data.emplace_back(std::move(key), std::move(value));
+    return o_->data.back().value;
 }
