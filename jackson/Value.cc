@@ -17,11 +17,11 @@ Value::Value(const json::Value& rhs)
         case TYPE_INT64:
         case TYPE_DOUBLE: break;
         case TYPE_STRING:
-            s_->incrRefCount(); break;
+            s_->incrAndGet(); break;
         case TYPE_ARRAY:
-            a_->incrRefCount(); break;
+            a_->incrAndGet(); break;
         case TYPE_OBJECT:
-            o_->incrRefCount(); break;
+            o_->incrAndGet(); break;
         default: assert(false && "bad value type");
     }
 }
@@ -48,11 +48,11 @@ Value& Value::operator=(const json::Value& rhs)
         case TYPE_INT64:
         case TYPE_DOUBLE: break;
         case TYPE_STRING:
-            s_->incrRefCount(); break;
+            s_->incrAndGet(); break;
         case TYPE_ARRAY:
-            a_->incrRefCount(); break;
+            a_->incrAndGet(); break;
         case TYPE_OBJECT:
-            o_->incrRefCount(); break;
+            o_->incrAndGet(); break;
         default: assert(false && "bad value type");
     }
     return *this;
@@ -95,15 +95,15 @@ Value::~Value()
         case TYPE_INT64:
         case TYPE_DOUBLE: break;
         case TYPE_STRING:
-            if (s_->decrRefCount().shouldDestructed())
+            if (s_->decrAndGet() == 0)
                 delete s_;
             break;
         case TYPE_ARRAY:
-            if (a_->decrRefCount().shouldDestructed())
+            if (a_->decrAndGet() == 0)
                 delete a_;
             break;
         case TYPE_OBJECT:
-            if (o_->decrRefCount().shouldDestructed())
+            if (o_->decrAndGet() == 0)
                 delete o_;
             break;
         default: assert(false && "bad value type");

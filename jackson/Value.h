@@ -12,6 +12,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <atomic>
 
 #include <jackson/noncopyable.h>
 
@@ -41,33 +42,26 @@ template <typename T>
 struct AddRefCount
 {
     template <typename... Args>
-    AddRefCount(Args&&... args):
-            refCount(1),
-            data(std::forward<Args>(args)...)
+    AddRefCount(Args&&... args)
+            : refCount(1)
+            , data(std::forward<Args>(args)...)
     {}
     ~AddRefCount()
     { assert(refCount == 0); }
 
-    AddRefCount& incrRefCount()
+    int incrAndGet()
     {
         assert(refCount > 0);
-        refCount++;
-        return *this;
+        return ++refCount;
     }
 
-    AddRefCount& decrRefCount()
+    int decrAndGet()
     {
         assert(refCount > 0);
-        refCount--;
-        return *this;
+        return --refCount;
     }
 
-    bool shouldDestructed()
-    {
-        return refCount == 0;
-    }
-
-    int refCount;
+    std::atomic_int refCount;
     T data;
 };
 
