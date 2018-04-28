@@ -35,38 +35,6 @@ enum ValueType {
 struct Member;
 class Document;
 
-namespace detail
-{
-
-template <typename T>
-struct AddRefCount
-{
-    template <typename... Args>
-    AddRefCount(Args&&... args)
-            : refCount(1)
-            , data(std::forward<Args>(args)...)
-    {}
-    ~AddRefCount()
-    { assert(refCount == 0); }
-
-    int incrAndGet()
-    {
-        assert(refCount > 0);
-        return ++refCount;
-    }
-
-    int decrAndGet()
-    {
-        assert(refCount > 0);
-        return --refCount;
-    }
-
-    std::atomic_int refCount;
-    T data;
-};
-
-}
-
 class Value
 {
     friend class Document;
@@ -296,9 +264,36 @@ public:
 private:
     ValueType type_;
 
-    typedef detail::AddRefCount<std::vector<char>>   StringWithRefCount;
-    typedef detail::AddRefCount<std::vector<Value>>  ArrayWithRefCount;
-    typedef detail::AddRefCount<std::vector<Member>> ObjectWithRefCount;
+    template <typename T>
+    struct AddRefCount
+    {
+        template <typename... Args>
+        AddRefCount(Args&&... args)
+                : refCount(1)
+                , data(std::forward<Args>(args)...)
+        {}
+        ~AddRefCount()
+        { assert(refCount == 0); }
+
+        int incrAndGet()
+        {
+            assert(refCount > 0);
+            return ++refCount;
+        }
+
+        int decrAndGet()
+        {
+            assert(refCount > 0);
+            return --refCount;
+        }
+
+        std::atomic_int refCount;
+        T data;
+    };
+
+    typedef AddRefCount<std::vector<char>>   StringWithRefCount;
+    typedef AddRefCount<std::vector<Value>>  ArrayWithRefCount;
+    typedef AddRefCount<std::vector<Member>> ObjectWithRefCount;
 
     union {
         bool     b_;
