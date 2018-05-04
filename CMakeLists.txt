@@ -30,12 +30,16 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 include_directories(${PROJECT_SOURCE_DIR})
 
 add_subdirectory(jackson)
-add_subdirectory(jackson/test)
 
 if(NOT CMAKE_BUILD_NO_EXAMPLES)
     add_subdirectory(example)
 endif()
 
+if (CMAKE_BUILD_TESTS)
+    add_subdirectory(jackson/test)
+endif()
+
 if (CMAKE_BUILD_BENCHMARK)
     add_subdirectory(jackson/bench)
 endif()
+
