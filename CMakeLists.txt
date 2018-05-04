@@ -34,11 +34,9 @@ add_subdirectory(jackson)
 if(NOT CMAKE_BUILD_NO_EXAMPLES)
     add_subdirectory(example)
 endif()
-
 if (CMAKE_BUILD_TESTS)
     add_subdirectory(jackson/test)
 endif()
-
 if (CMAKE_BUILD_BENCHMARK)
     add_subdirectory(jackson/bench)
 endif()
