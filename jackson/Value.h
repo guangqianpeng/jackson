@@ -87,10 +87,6 @@ public:
 
     ~Value();
 
-    // never copy or construct from Document
-    Value(const Document& rhs) = delete;
-    void operator=(const Document& rhs) = delete;
-
     ValueType getType() const { return type_; }
     size_t getSize() const;
 
